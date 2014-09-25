@@ -22,8 +22,6 @@ string P1a::getstr() const
 
 P1a& P1a::append(const P1a& p)
 {
-    //bugs here...
-   string s;
-   s = p.getstr();
-    this->_str += s;
+    this->_str .append(p.getstr());
+    return (P1a&) (*this);
 }
