@@ -14,12 +14,34 @@
 using namespace std;
 
 // TODO: Initialize static data variable in class A
-
+int A::_count = 0;
 // TODO: Implement class A's constructors and desctructor
+A::A()
+{
+    this->_count ++; 
+}
+
+A::A(const string& s):_data(s)
+{
+    this->_count ++;
+}
+
+A::~A()
+{
+   this->_count --;
+}
+
+
 
 void AMgr::cleanAll()
 {
-   // TODO: clean up all the data in AMgr::_amap and AMgr::_alist
+    for()
+    {
+     
+    }
+    this->_amap.clear();
+    this->_alist.clear();
+    // TODO: clean up all the data in AMgr::_amap and AMgr::_alist
 }
 
 // If _amap or _alist is not empty, it will be cleaned anyway.
@@ -58,6 +80,7 @@ void AMgr::import(ifstream& inf)
 // 3. Record the (lineNo, wordNo) to A::_occurence
 void AMgr::newEntry(const string& str, unsigned lineNo, unsigned wordNo)
 {
+
 }
 
 // TODO: Implement the ostream& operator<< for AMgr and A.

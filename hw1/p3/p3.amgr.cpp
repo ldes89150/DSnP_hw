@@ -58,16 +58,19 @@ void AMgr::import(ifstream& inf)
 // 3. Record the (lineNo, wordNo) to A::_occurence
 void AMgr::newEntry(const string& str, unsigned lineNo, unsigned wordNo)
 {
+
 }
 
 // TODO: Implement the ostream& operator<< for AMgr and A.
 // A sample input/output can be found at p3.in and p3.out.ref
-// 
+//
 ostream& operator << (ostream& os, const AMgr& am)
 {
+
 }
 
 ostream& operator << (ostream& os, const A& a)
 {
+
 }
 
