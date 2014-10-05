@@ -5,7 +5,7 @@
   Author       [ Chung-Yang (Ric) Huang ]
   Copyright    [ Copyleft(c) 2014 DVLab, GIEE, NTU, Taiwan ]
 ****************************************************************************/
-
+#include <stdlib.h>
 #include <fstream>
 #include <iostream>
 #include "p3.amgr.h"
