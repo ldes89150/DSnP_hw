@@ -49,22 +49,22 @@ CmdParser::readCmdInt(istream& istr)
          case LINE_END_KEY   :
          case END_KEY        : moveBufPtr(_readBufEnd); break;
          case BACK_SPACE_KEY : moveBufPtr(_readBufPtr-1); 
-                               deleteChar();/* TODO */ break;
+                               deleteChar(); break;
          case DELETE_KEY     : deleteChar(); break;
          case NEWLINE_KEY    : addHistory();
                                cout << char(NEWLINE_KEY);
                                resetBufAndPrintPrompt(); break;
          case ARROW_UP_KEY   : moveToHistory(_historyIdx - 1); break;
          case ARROW_DOWN_KEY : moveToHistory(_historyIdx + 1); break;
-         case ARROW_RIGHT_KEY: moveBufPtr(_readBufPtr+1);/* TODO */ break;
-         case ARROW_LEFT_KEY : moveBufPtr(_readBufPtr-1);/* TODO */ break;
+         case ARROW_RIGHT_KEY: moveBufPtr(_readBufPtr+1); break;
+         case ARROW_LEFT_KEY : moveBufPtr(_readBufPtr-1); break;
          case PG_UP_KEY      : moveToHistory(_historyIdx - PG_OFFSET); break;
          case PG_DOWN_KEY    : moveToHistory(_historyIdx + PG_OFFSET); break;
-         case TAB_KEY        : /* TODO */ break;
+         case TAB_KEY        : insertChar(' ',TAB_POSITION - (int)(_readBufEnd-_readBuf)%TAB_POSITION); break;
          case INSERT_KEY     : 
-         
+        /*       //debug code  
         cout<<_history.size()<<" "<<_historyIdx<<" "<<_readBufEnd-_readBuf;
-
+        */
          break;
          // not yet supported; fall through to UNDEFINE
          case UNDEFINED_KEY:   mybeep(); break;
@@ -76,6 +76,8 @@ CmdParser::readCmdInt(istream& istr)
       #endif
    }
 }
+
+
 
 
 // This function moves _readBufPtr to the "ptr" pointer
@@ -113,6 +115,29 @@ void coutSlicechar(char* beginptr, char* endptr, unsigned whitespaceintheend = 0
     return;
 } 
 
+string strToAdd(char* buffbegin, char* buffend, bool &strnull)
+{
+    char* beginptr = buffbegin;
+    char* endptr = buffend;
+    strnull = true;
+    
+    for(char* ptr = buffbegin;ptr != buffend;ptr++)
+    {
+        
+        if(((char)(*ptr)) != ' ')
+        {
+            if(strnull)
+            {
+                beginptr = ptr;
+                strnull = false;
+            }
+            endptr = ptr+1;
+        }
+    }
+    string str2add(beginptr,(size_t)(endptr-beginptr));
+    return str2add;
+
+}
 
 
 bool
@@ -190,16 +215,19 @@ void
 CmdParser::insertChar(char ch, int repeat)
 {
     assert(repeat>=1);
-    for(char* ptr =_readBufEnd+repeat;ptr!=_readBufPtr;ptr--)
+    for(char* ptr =_readBufEnd+repeat;ptr!=_readBufPtr+repeat-1;ptr--)
     {
         *ptr = *(ptr-1);
     }
-    *(_readBufPtr) = ch;
-    
+	for(char* ptr = _readBufPtr;ptr!=_readBufPtr+repeat;ptr++)
+    {
+        *ptr = ch;
+     }
     _readBufEnd += repeat;
     coutSlicechar(_readBufPtr,_readBufEnd);
-    _readBufPtr += repeat;
     moveCursor(_readBufPtr-_readBufEnd);
+    _readBufPtr += repeat;
+    moveCursor(repeat);
     return;
 
    // TODO...
@@ -282,9 +310,10 @@ CmdParser::moveToHistory(int index)
             index = _historyEnd;
         }
     }
+    //bool strnull;
     if(_historyIdx == (int)_history.size())
     {
-        addHistory();
+		;
     }
     _historyIdx = index;
     retrieveHistory();
@@ -303,39 +332,16 @@ CmdParser::moveToHistory(int index)
 // 4. Make sure to clean up "temp recorded string" (added earlier by up/pgUp,
 //    and reset _tempCmdStored to false
 // 5. Reset _historyIdx to _history.size() // for future insertion
-// 6. Reset _readBufPtr and _readBufEnd to _readBuf
-// 7. Make sure *_readBufEnd = 0 ==> _readBuf becomes null string
 //
+
 void
 CmdParser::addHistory()
 {
-    char* beginptr = _readBuf;
-    char* endptr = _readBufEnd;
-    bool notnull = false;
-    
-    for(char* ptr = _readBuf;ptr != _readBufEnd;ptr++)
-    {
-        
-        if(((char)(*ptr)) != ' ')
-        {
-            if(!notnull)
-            {
-                beginptr = ptr;
-                notnull = true;
-            }
-            endptr = ptr+1;
-        }
-    }
-
-    if(notnull)
-    {
-        string str2add(beginptr,(size_t)(endptr-beginptr));
+    bool strnull;
+    string str2add = strToAdd(_readBuf,_readBufEnd,strnull);
+    if(!strnull)
         _history.push_back(str2add);
-
-        //_history.insert(_history.begin()+_historyIdx,str2add);
-    }
     _historyIdx = (int)_history.size();
-
     return;
 }
 
