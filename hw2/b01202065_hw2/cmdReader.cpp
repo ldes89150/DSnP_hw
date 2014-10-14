@@ -61,7 +61,12 @@ CmdParser::readCmdInt(istream& istr)
          case PG_UP_KEY      : moveToHistory(_historyIdx - PG_OFFSET); break;
          case PG_DOWN_KEY    : moveToHistory(_historyIdx + PG_OFFSET); break;
          case TAB_KEY        : /* TODO */ break;
-         case INSERT_KEY     : // not yet supported; fall through to UNDEFINE
+         case INSERT_KEY     : 
+         
+        cout<<_history.size()<<" "<<_historyIdx<<" "<<_readBufEnd-_readBuf;
+
+         break;
+         // not yet supported; fall through to UNDEFINE
          case UNDEFINED_KEY:   mybeep(); break;
          default:  // printable character
             insertChar(char(pch)); break;
@@ -87,6 +92,7 @@ CmdParser::readCmdInt(istream& istr)
 //        to move the _readBufPtr to proper position.
 void moveCursor(int n)
 {
+    //[Note] This function moves cursor. (doesn;t maintain _readBufPtr)
     if(n==0)
         return;
     if(n>0)
@@ -154,7 +160,7 @@ CmdParser::deleteChar()
    if(_readBufPtr == _readBufEnd)
    {
        mybeep();
-       return -1;
+       return false;
    }
    for(char* ptr = _readBufPtr;ptr!=_readBufEnd;ptr++)
    {
@@ -183,6 +189,7 @@ CmdParser::deleteChar()
 void
 CmdParser::insertChar(char ch, int repeat)
 {
+    assert(repeat>=1);
     for(char* ptr =_readBufEnd+repeat;ptr!=_readBufPtr;ptr--)
     {
         *ptr = *(ptr-1);
@@ -215,6 +222,13 @@ CmdParser::insertChar(char ch, int repeat)
 void
 CmdParser::deleteLine()
 {
+    moveBufPtr(_readBuf);
+    int strlength = (int)(_readBufEnd-_readBuf);
+    for(int i = 0; i < strlength;i++)
+        cout<<' ';
+    moveCursor(-strlength);
+    _readBufEnd = _readBufEnd;
+    return;
    // TODO...
 }
 
@@ -241,6 +255,40 @@ void
 CmdParser::moveToHistory(int index)
 {
    // TODO...
+    assert(index!=_historyIdx);
+    int _historyEnd = (int) _history.size()-1;
+
+    if(index < 0)
+    {
+        if(_historyIdx==0)
+        {
+            mybeep();
+            return;
+        }
+        else
+        {
+            index = 0;
+        }
+    }
+    if(index > _historyEnd)
+    {
+        if(_historyIdx==_historyEnd)
+        {
+            mybeep();
+            return;
+        }
+        else
+        {
+            index = _historyEnd;
+        }
+    }
+    if(_historyIdx == (int)_history.size())
+    {
+        addHistory();
+    }
+    _historyIdx = index;
+    retrieveHistory();
+    return;
 }
 
 
@@ -261,8 +309,37 @@ CmdParser::moveToHistory(int index)
 void
 CmdParser::addHistory()
 {
-   // TODO...
+    char* beginptr = _readBuf;
+    char* endptr = _readBufEnd;
+    bool notnull = false;
+    
+    for(char* ptr = _readBuf;ptr != _readBufEnd;ptr++)
+    {
+        
+        if(((char)(*ptr)) != ' ')
+        {
+            if(!notnull)
+            {
+                beginptr = ptr;
+                notnull = true;
+            }
+            endptr = ptr+1;
+        }
+    }
+
+    if(notnull)
+    {
+        string str2add(beginptr,(size_t)(endptr-beginptr));
+        _history.push_back(str2add);
+
+        //_history.insert(_history.begin()+_historyIdx,str2add);
+    }
+    _historyIdx = (int)_history.size();
+
+    return;
 }
+
+
 
 
 // 1. Replace current line with _history[_historyIdx] on the screen
