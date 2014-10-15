@@ -12,7 +12,7 @@
 #include <ctype.h>
 #include <cassert>
 #include "cmdCharDef.h"
-
+//#define BEEP_CHAR int('\a')
 using namespace std;
 
 //----------------------------------------------------------------------

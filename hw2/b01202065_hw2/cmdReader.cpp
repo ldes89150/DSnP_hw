@@ -54,7 +54,8 @@ CmdParser::readCmdInt(istream& istr)
          case HOME_KEY       : moveBufPtr(_readBuf); break;
          case LINE_END_KEY   :
          case END_KEY        : moveBufPtr(_readBufEnd); break;
-         case BACK_SPACE_KEY : moveBufPtr(_readBufPtr-1);
+         case BACK_SPACE_KEY : if(_readBufPtr == _readBuf){break;}
+                               moveBufPtr(_readBufPtr-1);
                                deleteChar(); break;
          case DELETE_KEY     : deleteChar(); break;
          case NEWLINE_KEY    : addHistory();
