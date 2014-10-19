@@ -266,7 +266,7 @@ CmdParser::deleteLine()
     for(int i = 0; i < strlength;i++)
         cout<<' ';
     moveCursor(-strlength);
-    _readBufEnd = _readBufEnd;
+    _readBufPtr = _readBufEnd = _readBuf;
     return;
    // TODO...
 }
