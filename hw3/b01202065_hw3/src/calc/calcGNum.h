@@ -32,15 +32,26 @@ public:
    // Operator overload
    // TODO: overload the following operators (+, +=, -, -=, *, *=, ==, !=, =)
    //
-   GNum operator + (const GNum& n) const { return 0; }
-   GNum& operator += (const GNum& n) { return (*this); }
-   GNum operator - (const GNum& n) const { return 0; }
-   GNum& operator -= (const GNum& n) { return (*this); }
-   GNum operator * (const GNum& n) const { return 0; }
-   GNum& operator *= (const GNum& n) { return (*this); }
-   bool operator == (const GNum& n) const { return true; }
-   bool operator != (const GNum& n) const { return true; }
-   GNum& operator = (const GNum& n) { return (*this); }
+
+   GNum operator + (const GNum& n) const;
+   GNum& operator += (const GNum& n);
+   GNum operator - (const GNum& n) const;
+   GNum& operator -= (const GNum& n);
+   GNum operator * (const  GNum& n) const;
+   GNum& operator *= (const GNum& n);
+   bool operator == (const GNum& n) const ;
+   bool operator != (const GNum& n) const ;
+   GNum& operator = (const GNum& n);
+
+   GNum operator + (const int n) const{return GNum(_num+n);}
+   GNum& operator += (const int& n){_num+=n; return (*this);}
+   GNum operator - (const int& n) const{return GNum(_num-n);}
+   GNum& operator -= (const int& n){_num-=n; return (*this);}
+   GNum operator * (const int& n) const{return GNum(_num*n);}
+   GNum& operator *= (const int& n){_num*=n; return (*this);}
+   bool operator == (const int& n) const {return _num==n;}
+   bool operator != (const int& n) const {return _num!=n;}
+   GNum& operator = (const int& n){_num=n; return (*this);}
 
    // static methods
    static void setBase(int b) { _base = b; }
@@ -48,24 +59,24 @@ public:
    //
    // [TODO] Set the variable 's' in the _varMap to value 'n',
    // no matter the variable 's' exists in _varMap or not
-   static void setVarVal(const string& s, const GNum& n) { }
+   static void setVarVal(const string& s, const GNum& n); 
    //
    // [TODO] Get the value of variable 's'.
    // If 's' can be found, store the value in 'n' and return true.
    // Otherwise ('s' not found), return false.
-   static bool getVarVal(const string& s, GNum& n) { return true; }
+   static bool getVarVal(const string& s, GNum& n);
    //
    // [TODO] If 's' is a valid variable name, return "getVarVal(s, n)";
    // else if 's' is a valid number, convert it to GNum and assign to 'n'
-   static bool getStrVal(const string& s, GNum& n) { return true; }
+   static bool getStrVal(const string& s, GNum& n);
    //
    // [TODO] Print out all the variables in _varMap, one variable per line,
    // in the following format (assume _base = 16) ---
    // a = #9
    // b = #1a
    // kkk = #f1c
-   static void printVars() { }
-   static void resetVapMap() { }
+   static void printVars();
+   static void resetVapMap();
 
    // friend functions
    friend ostream& operator << (ostream&, const GNum&);  // TODO

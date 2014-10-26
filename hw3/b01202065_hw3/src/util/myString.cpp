@@ -9,7 +9,7 @@
 #include <ctype.h>
 #include <cstring>
 #include <cassert>
-
+#include <algorithm>
 using namespace std;
 
 // 1. strlen(s1) must >= n
@@ -94,3 +94,41 @@ isValidVarName(const string& str)
          return false;
    return true;
 }
+
+
+//custom functions
+string Int2Str(int num, const int& base)
+{
+    string str;
+    bool negnum = false;
+    if(num <0)
+    {
+        num = -num;
+        negnum = true;
+    }
+   
+    int i = 0;
+    char j;
+    do
+    {
+        i = num%base;
+        if(i<10)
+            j = (char)(((int) '0')+i);
+        else
+            j = (char)(((int) 'a')-10+i);
+        str.push_back(j);
+        num = num /base;
+    }while(num != 0);
+    if(negnum)
+    {
+        str.push_back('-');
+    }
+    reverse(str.begin(),str.end());
+    return str;
+}
+    
+
+
+
+
+
