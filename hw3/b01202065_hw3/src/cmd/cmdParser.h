@@ -74,8 +74,8 @@ public:
    virtual void help() const = 0;
 
    void setOptCmd(const string& str) { _optCmd = str; }
+   string getOptCmd() {return _optCmd;}
    const string& getOptCmd() const { return _optCmd; }
-   bool machOptCmd(const string& cmd) const;
 protected:
    bool lexSingleOption(const string&, string&, bool optional = true) const;
    bool lexOptions(const string&, vector<string>&, size_t nOpts = 0) const;

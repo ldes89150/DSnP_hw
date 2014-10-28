@@ -110,7 +110,8 @@ bool GNum::getStrVal(const string& s, GNum& n)
      else
      {
         int s_int;
-        if(myStr2Int(s,s_int))
+        
+        if(s[0]=='#' and myStr2Int(s.substr(1),s_int))
         {
             n._num = s_int;
             return true;

@@ -177,7 +177,7 @@ CmdParser::parseCmd(string& option)
         if(cmds.size()>1)
         {
             option = cmds[1];
-            assert(cmds.end()-cmds.begin()>2);
+            assert(cmds.end()-cmds.begin()>1);
             for(vector<string>::iterator itr = cmds.begin()+2;
                 itr != cmds.end();
                 itr++)
@@ -277,7 +277,6 @@ CmdExec*
 CmdParser::getCmd(string cmd)
 {
     CmdExec* e = 0;
-    unsigned cmdfound =0;
     for(CmdMap::iterator itr = _cmdMap.begin();itr!=_cmdMap.end();itr++)
     {
         if(caseInsensitivIn(itr->first,cmd) and 
@@ -285,12 +284,9 @@ CmdParser::getCmd(string cmd)
                             itr->second->getOptCmd()))
         {
             e = itr->second;
-            cmdfound++;
         }       
     }
-
     // TODO...
-    
     return e;
 }
 

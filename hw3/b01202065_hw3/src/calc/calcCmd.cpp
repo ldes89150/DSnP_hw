@@ -15,6 +15,18 @@ bool
 initCalcCmd()
 {
    // TODO...
+      if (!(cmdMgr->regCmd("GNADD", 5, new GNAddCmd) &&
+            cmdMgr->regCmd("GNCOMPare", 6, new GNCmpCmd) &&
+            cmdMgr->regCmd("GNMULTiply", 6, new GNMultCmd) &&
+            cmdMgr->regCmd("GNPrint", 3, new GNPrintCmd) &&
+            cmdMgr->regCmd("GNSET", 5, new GNSetCmd) &&
+            cmdMgr->regCmd("GNSUBtract", 5, new GNSubCmd) &&
+            cmdMgr->regCmd("GNVARiable", 5, new GNVarCmd) 
+         )) 
+      {
+        cerr << "Registering \"init\" commands fails... exiting" << endl;
+        return false;
+      }
    return true;
 }
 
@@ -94,6 +106,19 @@ GNVarCmd::help() const
         << endl;
 }
 
+#define GNOptCmd(OPT,OPTCHAR)                                       \
+vector<string> opts;                                        \
+if(!CmdExec::lexOptions(option,opts,3))                     \
+    return CMD_EXEC_ERROR;                                  \
+GNum y,a,b;                                                 \
+if(!GNum::getStrVal(opts[1],a))                              \
+{return CmdExec::errorOption(CMD_OPT_ILLEGAL,opts[1]);}     \
+if(!GNum::getStrVal(opts[2],b))                              \
+{return CmdExec::errorOption(CMD_OPT_ILLEGAL,opts[2]);}\
+y = a OPT b;                                                \
+GNum::setVarVal(opts[0],y);                                 \
+cout<<opts[0]<<"("<<y<<")"<<" = "<<a<<' '<<OPTCHAR<<' '<<b<<endl;\
+return CMD_EXEC_DONE;\
 
 //----------------------------------------------------------------------
 //    GNADD <(string y)> <(string a) | #(int va)> <(string b) | #(int vb)>
@@ -101,9 +126,8 @@ GNVarCmd::help() const
 CmdExecStatus
 GNAddCmd::exec(const string& option)
 {
-   // TODO...
-
-   return CMD_EXEC_DONE;
+    // TODO...
+    GNOptCmd(+,'+')
 }
 
 void
@@ -129,7 +153,7 @@ CmdExecStatus
 GNSubCmd::exec(const string& option)
 {
    // TODO...
-
+    GNOptCmd(-,'-')
    return CMD_EXEC_DONE;
 }
 
@@ -156,7 +180,7 @@ CmdExecStatus
 GNMultCmd::exec(const string& option)
 {
    // TODO...
-   
+   GNOptCmd(*,'*')
    return CMD_EXEC_DONE;
 }
 
