@@ -11,8 +11,16 @@
 #include <cstdlib>
 #include "util.h"
 #include "cmdParser.h"
+#include <sstream>
+#include <iterator>
+#include <algorithm>
+#include <cctype>
+
 
 using namespace std;
+
+
+bool caseInsensitivIn(string strshort,string strlong);
 
 //----------------------------------------------------------------------
 //    Extrenal funcitons
@@ -30,6 +38,12 @@ CmdParser::openDofile(const string& dof)
 {
    // TODO...
    _dofile = new ifstream(dof.c_str());
+   if(_dofile->fail())
+   {
+       delete _dofile;
+       _dofile = 0;
+       return false;
+   }
    return true;
 }
 
@@ -38,11 +52,16 @@ void
 CmdParser::closeDofile()
 {
    assert(_dofile != 0);
-   // TODO...
-   delete _dofile;
+   // TODO 
+   if(_dofile->is_open())
+   {
+       _dofile->close(); 
+      delete _dofile;
+      _dofile = 0;
+   }
 }
 
-// Return false if registration fails
+//return false if registration fails
 bool
 CmdParser::regCmd(const string& cmd, unsigned nCmp, CmdExec* e)
 {
@@ -67,7 +86,7 @@ CmdParser::regCmd(const string& cmd, unsigned nCmp, CmdExec* e)
    string optCmd = cmd.substr(nCmp);
    assert(e != 0);
    e->setOptCmd(optCmd);
-
+   //cout<<optCmd<<endl;
    // insert (mandCmd, e) to _cmdMap; return false if insertion fails.
    return (_cmdMap.insert(CmdRegPair(mandCmd, e))).second;
 }
@@ -98,6 +117,12 @@ void
 CmdParser::printHelps() const
 {
    // TODO...
+   for(CmdMap::const_iterator itr = _cmdMap.begin();
+       itr != _cmdMap.end();
+       itr++)
+   {
+       itr->second->help();
+   }
 }
 
 void
@@ -134,13 +159,41 @@ CmdParser::printHistory(int nPrint) const
 CmdExec*
 CmdParser::parseCmd(string& option)
 {
-   assert(_tempCmdStored == false);
-   assert(!_history.empty());
-   string str = _history.back();
-
-   // TODO...
-   assert(str[0] != 0 && str[0] != ' ');
-   return NULL;
+    assert(_tempCmdStored == false);
+    assert(!_history.empty());
+    string str = _history.back();
+    stringstream iss(str);
+    vector<string> cmds;
+    copy(istream_iterator<string>(iss),
+         istream_iterator<string>(),
+         back_inserter(cmds));
+    CmdExec* e = getCmd(cmds[0]);
+    if(e == 0)
+    {
+         cout << "Illegal option!! (" << cmds[0] << ")" << endl;
+    }
+    else
+    {
+        if(cmds.size()>1)
+        {
+            option = cmds[1];
+            assert(cmds.end()-cmds.begin()>2);
+            for(vector<string>::iterator itr = cmds.begin()+2;
+                itr != cmds.end();
+                itr++)
+            {
+                option+=" ";
+                option+=(*itr);
+            } 
+        }
+        else
+        {
+            option = "";
+        }
+    }
+     // TODO...
+    assert(str[0] != 0 && str[0] != ' ');
+    return e;
 }
 
 // This function is called by pressing 'Tab'.
@@ -223,9 +276,22 @@ CmdParser::listCmd(const string& str)
 CmdExec*
 CmdParser::getCmd(string cmd)
 {
-   CmdExec* e = 0;
-   // TODO...
-   return e;
+    CmdExec* e = 0;
+    unsigned cmdfound =0;
+    for(CmdMap::iterator itr = _cmdMap.begin();itr!=_cmdMap.end();itr++)
+    {
+        if(caseInsensitivIn(itr->first,cmd) and 
+           caseInsensitivIn(cmd.substr(itr->first.size()),
+                            itr->second->getOptCmd()))
+        {
+            e = itr->second;
+            cmdfound++;
+        }       
+    }
+
+    // TODO...
+    
+    return e;
 }
 
 
@@ -304,4 +370,20 @@ CmdExec::errorOption(CmdOptionError err, const string& opt) const
    }
    return CMD_EXEC_ERROR;
 }
+
+
+bool caseInsensitivIn(string strshort,string strlong)
+{
+    transform(strshort.begin(),strshort.end(),strshort.begin(),::toupper);
+    transform(strlong.begin(),strlong.end(),strlong.begin(),::toupper);
+    //cout<<"short: "<<strshort<<" long:"<<strlong<<endl;
+    if(strlong.find(strshort)==0)
+        return true;
+    else
+        return false;
+}
+
+
+      
+       
 
