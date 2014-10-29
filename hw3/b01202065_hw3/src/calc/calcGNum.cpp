@@ -18,6 +18,7 @@ int GNum::_base = 10;
 CalcMap GNum::_varMap;
 
 
+bool strToInt(const string& numStr,int& num,int& base);
 
 ostream& operator << (ostream& os, const GNum& n)
 {
@@ -110,11 +111,18 @@ bool GNum::getStrVal(const string& s, GNum& n)
      else
      {
         int s_int;
-        
-        if(s[0]=='#' and myStr2Int(s.substr(1),s_int))
+                
+        if(s[0]=='#')
         {
-            n._num = s_int;
-            return true;
+            bool status;
+            status = strToInt(s.substr(1),s_int,_base);
+            if(status)
+            {    
+                n._num = s_int;
+                return true;
+            }
+            else
+                return false;
         }
         else
         {
@@ -137,6 +145,66 @@ void GNum::resetVapMap()
 {
     _varMap.clear();
 }
+
+
+bool strToInt(const string& numStr,int& num,int& base)
+{
+    string::const_iterator itr;
+    int digit;
+    int sign = 1;
+    num = 0;
+    if(numStr[0]=='-')
+    {
+        itr = numStr.begin()+1;
+        sign = -1;
+    }
+    else
+    {
+        itr = numStr.begin();
+        sign = 1;
+    }   
+    for(;itr != numStr.end();itr++)
+    {
+        
+        if((*itr)<='9' and (*itr)>='0')
+        {
+            digit = (int)((*itr) - '0');
+            if(digit< base)
+            {
+                num = num*base+digit;
+                continue;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        if((*itr)>='a' and (*itr) <= 'z')
+        {
+            digit = 10+(int) ((*itr) - 'a');
+            if(digit<base)
+            {
+                num = num*base+digit;
+                continue;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        return false;
+    }
+    num*=sign;
+    return true;
+}
+
+
+
+
+
+
+
+
 
 
 

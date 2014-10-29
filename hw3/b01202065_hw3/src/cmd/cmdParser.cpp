@@ -37,11 +37,25 @@ bool
 CmdParser::openDofile(const string& dof)
 {
    // TODO...
-   _dofile = new ifstream(dof.c_str());
+   if(_dofile != 0)
+   {
+       _dofileStack.push(_dofile);
+       _dofile = 0;
+   }
+
+    _dofile = new ifstream(dof.c_str());
    if(_dofile->fail())
    {
        delete _dofile;
-       _dofile = 0;
+       if(!_dofileStack.empty())
+       {
+            _dofile = _dofileStack.top();
+            _dofileStack.pop();
+       }
+       else
+           _dofile = 0;
+
+
        return false;
    }
    return true;
@@ -51,6 +65,7 @@ CmdParser::openDofile(const string& dof)
 void
 CmdParser::closeDofile()
 {
+    
    assert(_dofile != 0);
    // TODO 
    if(_dofile->is_open())
@@ -58,6 +73,11 @@ CmdParser::closeDofile()
        _dofile->close(); 
       delete _dofile;
       _dofile = 0;
+   }
+   if(!_dofileStack.empty())
+   {
+       _dofile = _dofileStack.top();
+       _dofileStack.pop();
    }
 }
 

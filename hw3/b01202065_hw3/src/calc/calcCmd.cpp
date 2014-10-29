@@ -207,8 +207,25 @@ CmdExecStatus
 GNCmpCmd::exec(const string& option)
 {
    // TODO...
-
-   return CMD_EXEC_DONE;
+        
+    vector<string> opts;                                        
+    if(!CmdExec::lexOptions(option,opts,2))                     
+        return CMD_EXEC_ERROR;                                  
+    GNum a,b;                                                 
+    if(!GNum::getStrVal(opts[0],a))                              
+    {return CmdExec::errorOption(CMD_OPT_ILLEGAL,opts[0]);}     
+    if(!GNum::getStrVal(opts[1],b))                              
+    {return CmdExec::errorOption(CMD_OPT_ILLEGAL,opts[1]);}
+    bool equal = (a==b);
+    if(equal)
+    {
+        cout<<opts[0]<<" == "<<opts[1]<<endl;
+    }
+    else
+    {
+        cout<<opts[0]<<" != "<<opts[1]<<endl;
+    }
+    return CMD_EXEC_DONE;
 }
 
 void
