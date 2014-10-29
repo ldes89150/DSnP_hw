@@ -190,7 +190,7 @@ CmdParser::parseCmd(string& option)
     CmdExec* e = getCmd(cmds[0]);
     if(e == 0)
     {
-         cout << "Illegal option!! (" << cmds[0] << ")" << endl;
+         cerr << "Illegal option!! (" << cmds[0] << ")" << endl;
     }
     else
     {
