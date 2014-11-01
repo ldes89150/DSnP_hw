@@ -19,9 +19,7 @@
 
 using namespace std;
 
-
 bool caseInsensitivIn(string strshort,string strlong);
-
 //----------------------------------------------------------------------
 //    Extrenal funcitons
 //----------------------------------------------------------------------
@@ -280,6 +278,120 @@ void
 CmdParser::listCmd(const string& str)
 {
    // TODO...
+   string tmpStr(_readBuf,_readBufEnd - _readBuf);
+   char * firstWordBegin;
+   char * firstWordEnd;
+   for(firstWordBegin = _readBuf;firstWordBegin != _readBufEnd+1;firstWordBegin++)
+   {
+       if((*firstWordBegin) != ' ')
+       {
+           break;
+       }
+   }
+   firstWordEnd = _readBufEnd;
+   for(char* ptr  = _readBufEnd;ptr != firstWordBegin;ptr--)
+   {
+       if(*ptr == ' ')
+       {
+           firstWordEnd = ptr;
+       }
+   }
+   
+   string firstWord(firstWordBegin,(size_t) (firstWordEnd- firstWordBegin));
+   if(firstWord.empty())
+   {
+       cout<<endl;
+       int i = 0;
+       for(CmdMap::iterator itr = _cmdMap.begin();itr != _cmdMap.end();itr ++)
+       {
+            cout << setw(12) << left << string(itr->first)+string(itr->second->getOptCmd());
+            if(i == 4)
+            {
+                cout<<endl;
+                i = 0;
+            }
+            else
+            {
+                i++;
+            }
+       }
+       reprintCmd();
+       return;
+   }
+   vector<CmdMap::iterator> machedCmd;
+   string cmd;
+   for(CmdMap::iterator itr = _cmdMap.begin();
+       itr!= _cmdMap.end();itr++)
+   {
+
+        cmd = extractFullCmd(itr);
+        if(caseInsensitivIn(firstWord,cmd) and caseInsensitivIn(cmd,firstWord))
+        {
+        //already mached
+            cout<<endl;
+            itr->second->help();
+            reprintCmd();
+            return;
+        }
+   }
+    if(_readBufPtr - firstWordBegin >= 0 and _readBufPtr - firstWordEnd <=0)
+    {
+        string partialword(firstWordBegin,(size_t)(_readBufPtr - firstWordBegin));
+        for(CmdMap::iterator itr = _cmdMap.begin();
+            itr != _cmdMap.end();itr++)
+        {
+            cmd = extractFullCmd(itr);
+            if(caseInsensitivIn(partialword,cmd))
+            {
+                machedCmd.push_back(itr);
+            }
+        }
+        size_t nMached = machedCmd.size();
+        if(nMached == 0)
+        {
+            mybeep();
+            return;
+        }
+        if(nMached == 1)
+        {
+            string charToInsert(extractFullCmd(machedCmd[0]).substr(partialword.size()));
+            for(string::const_iterator itr = charToInsert.begin();
+                itr != charToInsert.end();itr++ )
+            {
+                insertChar((char)(*itr));
+            }
+            insertChar(' ');
+            return;
+        }
+        else
+        {
+            int j = 0;
+            CmdMap::iterator itr;
+            cout<<endl;
+            for(vector<CmdMap::iterator>::iterator vitr = machedCmd.begin();
+                vitr != machedCmd.end();vitr ++)
+            {
+                itr = *vitr;
+                cout << setw(12) << left << extractFullCmd(itr);
+                if(j == 4)
+                {
+                    cout<<endl;
+                    j = 0;
+                }
+                else
+                {
+                    j++;
+                }
+            }
+            reprintCmd();
+            return;
+        }
+    }
+    else
+    {
+        mybeep();
+        return;
+    }
 }
 
 // cmd is a copy of the original input
@@ -399,6 +511,11 @@ bool caseInsensitivIn(string strshort,string strlong)
         return false;
 }
 
+string CmdParser::extractFullCmd(CmdMapItr itr )
+{
+    return  string(itr->first)+string(itr->second->getOptCmd());
+    
+}
 
       
        

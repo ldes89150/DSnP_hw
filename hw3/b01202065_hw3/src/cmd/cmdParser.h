@@ -109,8 +109,10 @@ class CmdParser
 
 typedef map<const string, CmdExec*>   CmdMap;
 typedef pair<const string, CmdExec*>  CmdRegPair;
-
+typedef CmdMap::iterator CmdMapItr;
 public:
+   
+   string extractFullCmd(CmdMapItr itr );
    CmdParser(const string& p) : _prompt(p), _dofile(0),
         _readBufPtr(_readBuf), _readBufEnd(_readBuf),
         _historyIdx(0), _tempCmdStored(false) {}
