@@ -329,7 +329,7 @@ CmdParser::listCmd(const string& str)
         {
         //already mached
             cout<<endl;
-            itr->second->help();
+            itr->second->usage(cout);
             reprintCmd();
             return;
         }
