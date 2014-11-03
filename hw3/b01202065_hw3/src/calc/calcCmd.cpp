@@ -111,6 +111,8 @@ vector<string> opts;                                        \
 if(!CmdExec::lexOptions(option,opts,3))                     \
     return CMD_EXEC_ERROR;                                  \
 GNum y,a,b;                                                 \
+if(!isValidVarName(opts[0]))                                \
+    return CmdExec::errorOption(CMD_OPT_ILLEGAL, opts[0]); \
 if(!GNum::getStrVal(opts[1],a))                              \
 {return CmdExec::errorOption(CMD_OPT_ILLEGAL,opts[1]);}     \
 if(!GNum::getStrVal(opts[2],b))                              \
