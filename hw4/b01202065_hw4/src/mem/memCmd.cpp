@@ -11,6 +11,9 @@
 #include "memTest.h"
 #include "cmdParser.h"
 #include "util.h"
+#include <algorithm>
+#include <vector>
+
 
 using namespace std;
 
@@ -71,16 +74,90 @@ MTResetCmd::help() const
         << "(memory test) reset memory manager" << endl;
 }
 
+bool caseInsensitivIn(string strshort,string strlong)
+{
+    transform(strshort.begin(),strshort.end(),strshort.begin(),::toupper);
+    transform(strlong.begin(),strlong.end(),strlong.begin(),::toupper);
+    cout<<"short: "<<strshort<<" long:"<<strlong<<endl;
+    if(strlong.find(strshort)==0)
+        return true;
+    else
+        return false;
+}
 
+
+
+int machFlag(string opt,vector<string> flags)
+{
+    if(!(opt[0]=='-' and opt.size()>0))
+        return -1;
+    string opt_flag(opt.substr(1));
+    for(unsigned i =0;i<flags.size();i++)
+    {
+        if(caseInsensitivIn(opt,flags[i]))
+            return (int) i;
+    }
+    return -2;
+}
 //----------------------------------------------------------------------
 //    MTNew <(size_t numObjects)> [-Array (size_t arraySize)]
 //----------------------------------------------------------------------
 CmdExecStatus
 MTNewCmd::exec(const string& option)
 {
-   // TODO
+    // TODO
+    size_t numObjects =0;
+    size_t arraySize =0;
+    vector<string> tokens;
+    if(!lexOptions(option,tokens))
+        return CMD_EXEC_ERROR;
     
-   return CMD_EXEC_DONE;
+    if(tokens.size()==0)
+        return CmdExec::errorOption(CMD_OPT_MISSING,"");
+    bool optFlagFound = false;
+    bool numObjFound  = false;
+    vector<string> flags;
+    flags.push_back("Array");
+    int status =0;
+    for(unsigned i=0;i<tokens.size();i++)
+    {
+        status = machFlag(tokens[i],flags);
+        if(status == -2)
+            return CmdExec::errorOption(CMD_OPT_ILLEGAL,tokens[i]);
+        if(status ==0 and !optFlagFound)
+        {
+            i++;
+            if(!i<tokens.size())
+                return CmdExec::errorOption(CMD_OPT_MISSING,tokens[i]);
+            int i;
+            if(!myStr2Int(tokens[i],i))
+                return CmdExec::errorOption(CMD_OPT_ILLEGAL,tokens[i]);
+            if(!i>0)
+                return CmdExec::errorOption(CMD_OPT_ILLEGAL,tokens[i]);
+            arraySize = (size_t) i;
+            optFlagFound = true;
+            continue;
+        }
+        if(status == -1 and !numObjFound)
+        {
+
+            if(!i<tokens.size())
+                return CmdExec::errorOption(CMD_OPT_MISSING,tokens[i]);
+            int i;
+            if(!myStr2Int(tokens[i],i))
+                return CmdExec::errorOption(CMD_OPT_ILLEGAL,tokens[i]);
+            if(!i>0)
+                return CmdExec::errorOption(CMD_OPT_ILLEGAL,tokens[i]);
+            numObjects = (size_t) i;
+            numObjFound = true;
+            continue;
+        }
+        return CmdExec::errorOption(CMD_OPT_ILLEGAL,tokens[i]);
+
+    }
+    cout<<arraySize<<" "<<numObjects;
+
+    return CMD_EXEC_DONE;
 }
 
 void
