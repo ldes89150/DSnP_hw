@@ -148,7 +148,11 @@ class MemRecycleList
    // Release the memory occupied by the recycle list(s)
    // DO NOT release the memory occupied by MemMgr/MemBlock
    void reset() {
-      // TODO
+        // TODO
+        delete _nextList;
+        _nextList =0;
+        _first =0;
+   
    }
 
    // Helper functions
@@ -407,6 +411,7 @@ private:
               if(remain >= S)
               {
                 size_t rn = getArraySize( downtoSizeT(remain));
+                cout<<rn;
                 recycleList_ptr = getMemRecycleList(rn);
                 _activeBlock->getMem(downtoSizeT(remain), ret);
                 recycleList_ptr->pushFront(ret);
@@ -415,9 +420,9 @@ private:
                 #endif // MEM_DEBUG
               }
 
+            _activeBlock = new MemBlock<T>(_activeBlock, _blockSize);
+            _activeBlock->getMem(t_req, ret);
           }
-         _activeBlock = new MemBlock<T>(_activeBlock, _blockSize);
-         _activeBlock->getMem(t_req, ret);
          #ifdef MEM_DEBUG
          cout << "Memory acquired... " << ret << endl;
          #endif // MEM_DEBUG
