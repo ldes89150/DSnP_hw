@@ -1,0 +1,46 @@
+mtn
+mtn -a
+mtn -a 60
+mtn 60 -a
+mtn -a 60 280
+mtn 60 -a 280
+mtn 60 280 -a
+mtn 0
+mtn 20 -a 0
+mtn 0 -a 0
+mtn 0 -a 123
+mtp
+mtn 100
+mtp
+mtn 50 -a 10
+mtp
+mtn 50 -a 20
+mtp
+mtd -i -1
+mtd -a -i 10
+mtd -i -a 20
+mtd -i 30 -a
+mtd 40 -i -a
+mtd 50 -a -i
+mtd 60 -a -i 15
+mtd -r 0
+mtd -r 10 
+mtd -r -a 10 
+mtd -r 10 a
+mtd -a 10 -r
+mtd -a -r 10 
+mtd -r -a
+mtd -a -r
+mtd -a
+mtd -a -r -i 
+mtd -r 20 -i
+mtd -r 20 -r
+mtd -i 20 -i
+mtd -i 20 -r
+mtd -r 20 -i -a
+mtd -r -i 10 
+mtd -i -r 10 
+mtd 
+mtp
+q -f
+
