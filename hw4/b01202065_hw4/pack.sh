@@ -1,6 +1,6 @@
 #!/bin/bash
 STUDENTID="b01202065";
-HOMEWORK_NUM="_hw3/";
+HOMEWORK_NUM="_hw4/";
 echo "Packing Homework "${STUDENTID}${HOMEWORK_NUM};
 if [ ! -d ${STUDENTID}${HOMEWORK_NUM} ]; then
 echo "Creating Directory "${STUDENTID}${HOMEWORK_NUM};
