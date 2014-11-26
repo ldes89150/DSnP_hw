@@ -34,42 +34,141 @@ public:
       ~iterator() {} // Should NOT delete _node
 
       // TODO: implement these overloaded operators
-      const T& operator * () const { return (*this); }
+      const T& operator * () const { return (*_node); }
       T& operator * () { return (*_node); }
-      iterator& operator ++ () { return (*this); }
-      iterator operator ++ (int) { return (*this); }
-      iterator& operator -- () { return (*this); }
-      iterator operator -- (int) { return (*this); }
+      iterator& operator ++ () 
+      { 
+          _node++;
+          return (*this); 
+      }
+      iterator operator ++ (int) 
+      { 
+          iterator tmp = (*this);
+          _node++;
+          return tmp; 
+      }
+      iterator& operator -- () 
+      { 
+          _node--;
+          return (*this); 
+      }
+      iterator operator -- (int) 
+      { 
+          iterator tmp = (*this);
+          _node--;
+          return tmp;
+      }
 
-      iterator operator + (int i) const { return (*this); }
-      iterator& operator += (int i) { return (*this); }
+      iterator operator + (int i) const 
+      { 
+          return iterator(_node+i); 
+      }
 
-      iterator& operator = (const iterator& i) { return (*this); }
+      iterator& operator += (int i) 
+      { 
+          _node+=i;
+          return (*this); 
+      }
 
-      bool operator != (const iterator& i) const { return false; }
-      bool operator == (const iterator& i) const { return false; }
+      iterator& operator = (const iterator& i) 
+      { 
+          _node = i._node;
+          return (*this); 
+      }
+
+      bool operator != (const iterator& i) const { return _node != i._node; }
+      bool operator == (const iterator& i) const { return _node == i._node; }
 
    private:
       T*    _node;
    };
 
    // TODO: implement these functions
-   iterator begin() const { return 0; }
-   iterator end() const { return 0; }
-   bool empty() const { return false; }
-   size_t size() const { return 0; }
+   iterator begin() const { return iterator(_data); }
+   iterator end() const { return iterator(_data+_size); }
+   bool empty() const { return _size == 0; }
+   size_t size() const { return _size; }
 
-   T& operator [] (size_t i) { return _data[0]; }
-   const T& operator [] (size_t i) const { return _data[0]; }
+   T& operator [] (size_t i) { return _data[i]; }
+   const T& operator [] (size_t i) const { return _data[i]; }
 
-   void push_back(const T& x) { }
-   void pop_front() { }
-   void pop_back() { }
+   void push_back(const T& x) 
+   {
+       if(_capacity == _size)
+       {
+           if(_capacity<10)
+               _capacity+=5;
+           else
+               _capacity*=2;
+           T* dataArrayNew = new T[_capacity];
+           for(size_t i = 0; i != _size;i++)
+           {
+              dataArrayNew[i] = _data[i];
+           }
+           _data = dataArrayNew;
+       }
+       _data[_size++] = x;
+   }
+   void pop_front() 
+   {
+      if(not empty())
+      {
+          for(T* ptr = begin()._node;ptr!=end()._node-1;++ptr)
+          {
+              *ptr = *(ptr+1);
+          }
+          _size--;
+      } 
+   }
+   void pop_back() 
+   {
+       if(not empty())
+       {
+           _size--;
+       }
+   }
 
-   bool erase(iterator pos) { return false; }
-   bool erase(const T& x) { return false; }
+   bool erase(iterator pos) 
+   {
+       if(empty())
+       {
+           return false;
+       }
+       else
+       {
+           for(T* ptr = pos._node;ptr != end()._node-1;++ptr)
+           {
+               *ptr = *(ptr+1);
+           }
+           _size--;
+           return true;
+       }
+   }
+   bool erase(const T& x) 
+   { 
+       if(empty())
+       {
+           return false;
+       }
+       else
+       {
+           bool delx = false;
+           for(iterator itr = begin();itr != end();++itr)
+           {
+               if((*itr)==x)
+               {
+                   erase(itr);
+                   delx = true;
+               }
+           }
+           return delx;
+       }
+   }
 
-   void clear() { }
+   void clear() 
+   {
+       _size = 0;
+   }
 
    // This is done. DO NOT change this one.
    void sort() const { if (!empty()) ::sort(_data, _data+_size); }
