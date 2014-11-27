@@ -236,8 +236,18 @@ class BSTree
                 _root->setRight(_end);
                 return true;
             }
-            for(BSTreeNode<T>* ptr =_root;not( (ptr->_data) == i);)
+            BSTreeNode<T>* ptr =_root;
+            while(true)
             {
+                if(i == ptr->_data)
+                {
+                    BSTreeNode<T>* nodeNew = new BSTreeNode<T>(i,0);
+                    _size++;
+                    if(ptr->hasRight())
+                        nodeNew->setRight(ptr->_right);
+                    ptr->setRight(nodeNew);
+                    return true;
+                }
                 if(i < (ptr->_data))
                 {
                     if(not ptr->hasLeft())
@@ -268,7 +278,6 @@ class BSTree
                     continue;
                 }
             }
-            return false;//_data = i
         }
         void sort(){}//dummy function
         void pop_back()
@@ -323,26 +332,35 @@ class BSTree
                     replaceRelationWithParent(node,child);
                     break; 
                 case 2:
-                    BSTreeNode<T>* prev = max(node->_left);
-                    if(prev->isLeftChild())//in this case prev->_parent == node
+                    if(node->_right->_data == node->_data)
                     {
-                        prev->setRight(node->_right);
+                        node->_right->setLeft(node->_left);
+                        replaceRelationWithParent(node,node->_right);
                     }
                     else
                     {
-                        prev->_parent->_right = 0;
-                        assert(prev->_right == 0);
-                        prev->setRight(node->_right);
-                        min(prev)->setLeft(node->_left);
+                        BSTreeNode<T>* prev = max(node->_left);
+                        if(prev->isLeftChild())//in this case prev->_parent == node
+                        {
+                            prev->setRight(node->_right);
+                        }
+                        else
+                        {
+                            prev->_parent->_right = 0;
+                            assert(prev->_right == 0);
+                            prev->setRight(node->_right);
+                            min(prev)->setLeft(node->_left);
+                        }
+                        replaceRelationWithParent(node,prev);
+                        break;
                     }
-                    replaceRelationWithParent(node,prev);
-                    break;
             }
+
             delete node;
             _size--;
             return;
         } 
-        void replaceRelationWithParent(BSTreeNode<T>* &origin, BSTreeNode<T>* &nodeNew)
+        void replaceRelationWithParent(BSTreeNode<T>* origin, BSTreeNode<T>* &nodeNew)
         {
             if(origin->isRoot())
             {
