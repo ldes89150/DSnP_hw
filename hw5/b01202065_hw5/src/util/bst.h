@@ -361,7 +361,7 @@ class BSTree
                 return;
             }
         }
-        static BSTreeNode<T>* inOrderNext(BSTreeNode<T>* node)
+        static BSTreeNode<T>* inOrderNext(BSTreeNode<T>* const& node)
         {
             if(node->hasRight())
             {
@@ -383,7 +383,7 @@ class BSTree
             }
         }
 
-        static BSTreeNode<T>* inOrderPrev(BSTreeNode<T>* node)
+        static BSTreeNode<T>* inOrderPrev(BSTreeNode<T>* const& node) 
         {
             
             if(node->hasLeft())
@@ -406,7 +406,7 @@ class BSTree
             }
         }
 
-        static BSTreeNode<T>* min(BSTreeNode<T>* node)
+        static BSTreeNode<T>* min(BSTreeNode<T>* const& node)
         {
             BSTreeNode<T>* ptr = node;
             while(ptr->hasLeft())
@@ -415,7 +415,7 @@ class BSTree
             }    
             return ptr;
         }
-        static BSTreeNode<T>* max(BSTreeNode<T>* node)
+        static BSTreeNode<T>* max(BSTreeNode<T>* const& node)
         {
             BSTreeNode<T>* ptr = node;
             while(ptr->hasRight())
