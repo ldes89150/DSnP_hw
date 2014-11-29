@@ -6,7 +6,7 @@
   Copyright    [ Copyleft(c) 2005-2014 LaDs(III), GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#define CHECK_NODE_HEALTH 0
+#define CHECK_NODE_HEALTH 1
 
 
 #ifndef BST_H
@@ -14,7 +14,7 @@
 
 #include <cassert>
 #include <string>
-
+#include<iostream>
 using namespace std;
 
 template <class T> class BSTree;
@@ -226,7 +226,10 @@ class BSTree
             _size = 0;
             _root = _end = new BSTreeNode<T>(T(),0); 
         }
-        void print(){}
+        void print()
+        {
+            printNode(_root,0);
+        }
         bool insert(const T& i)
         {
             if(empty())
@@ -278,14 +281,17 @@ class BSTree
                     continue;
                 }
             }
+            checkHealth(_root);
         }
         void sort(){}//dummy function
         void pop_back()
         {
             if(empty())
                 return;
-
-            eraseNode(max(_root)->_parent);
+            #ifdef CHECK_NODE_HEALTH
+            cout<<endl<<"pop_back:"<<_end->_parent->_data<<endl;
+            #endif
+            eraseNode(_end->_parent);
         }
         void pop_front()
         {
@@ -295,6 +301,43 @@ class BSTree
             eraseNode(min(_root));
         } 
     private:
+        void printSpace(size_t n)
+        {
+            for(size_t i=0;i!=n;i++)
+            {
+                cout<<" ";
+            }
+        }
+        void printNode(BSTreeNode<T>* node, size_t preSpace)
+        {
+            printSpace(preSpace);
+            #ifdef CHECK_NODE_HEALTH
+            if(node ==_end)
+            {
+                cout<<"[END]"<<endl;
+                return;
+            }
+            #endif
+            if(node == 0 or node == _end)
+            {
+                cout<<"[0]"<<endl;
+                return;
+            }
+            cout<<(node->_data)<<endl;
+            printNode(node->_left,preSpace+2);
+            printNode(node->_right,preSpace+2);
+
+        }
+        void checkHealth(BSTreeNode<T>* root )
+        {
+            assert(root->isHealthy());
+            if(root->hasRight())
+                checkHealth(root->_right);
+            if(root->hasLeft())
+                checkHealth(root->_left);
+            
+        }
+
         void clearNode(BSTreeNode<T>* node)
         {
             if(node == 0)
@@ -332,7 +375,7 @@ class BSTree
                     replaceRelationWithParent(node,child);
                     break; 
                 case 2:
-                    if(node->_right->_data == node->_data)
+                    if(node->_right->_data == node->_data and node->_right != _end)
                     {
                         node->_right->setLeft(node->_left);
                         replaceRelationWithParent(node,node->_right);
@@ -352,15 +395,17 @@ class BSTree
                             min(prev)->setLeft(node->_left);
                         }
                         replaceRelationWithParent(node,prev);
-                        break;
                     }
+                    break;
             }
 
             delete node;
             _size--;
+
+            checkHealth(_root);
             return;
         } 
-        void replaceRelationWithParent(BSTreeNode<T>* origin, BSTreeNode<T>* &nodeNew)
+        void replaceRelationWithParent(BSTreeNode<T>* &origin, BSTreeNode<T>* &nodeNew)
         {
             if(origin->isRoot())
             {
@@ -403,7 +448,6 @@ class BSTree
 
         static BSTreeNode<T>* inOrderPrev(BSTreeNode<T>* const& node) 
         {
-            
             if(node->hasLeft())
             {
                 return max(node->_left);
