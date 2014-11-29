@@ -127,7 +127,7 @@ class BSTree
                 iterator& operator ++()
                 {
                     _node = BSTree::inOrderNext(_node);
-                    #ifdef CHECK_NODE_HEALTH
+                    #if CHECK_NODE_HEALTH
                     assert(_node->isHealthy());
                     #endif
                     return *(this);
@@ -136,7 +136,7 @@ class BSTree
                 {
                     iterator tmp = *(this);
                     _node = BSTree::inOrderNext(_node);
-                    #ifdef CHECK_NODE_HEALTH
+                    #if CHECK_NODE_HEALTH
                     assert(_node->isHealthy());
                     #endif
                     return tmp;
@@ -281,7 +281,7 @@ class BSTree
                     continue;
                 }
             }
-            #ifdef CHECK_NODE_HEALTH
+            #if CHECK_NODE_HEALTH
             checkHealth(_root);
             #endif
         }
@@ -290,7 +290,7 @@ class BSTree
         {
             if(empty())
                 return;
-            #ifdef CHECK_NODE_HEALTH
+            #if CHECK_NODE_HEALTH
             cout<<endl<<"pop_back:"<<_end->_parent->_data<<endl;
             #endif
             eraseNode(_end->_parent);
@@ -313,7 +313,7 @@ class BSTree
         void printNode(BSTreeNode<T>* node, size_t preSpace)
         {
             printSpace(preSpace);
-            #ifdef CHECK_NODE_HEALTH
+            #if CHECK_NODE_HEALTH
             if(node ==_end)
             {
                 cout<<"[END]"<<endl;
@@ -350,13 +350,13 @@ class BSTree
         }
         void eraseNode(BSTreeNode<T>* node)
         {
-            #ifdef CHECK_NODE_HEALTH
+            #if CHECK_NODE_HEALTH
             assert(not empty());
             #endif
             switch(node->childNum())
             {
                 case 0:
-                    #ifdef CHECK_NODE_HEALTH
+                    #if CHECK_NODE_HEALTH
                     assert(not node->isRoot());
                     #endif
                     if(node->isLeftChild())
@@ -365,16 +365,14 @@ class BSTree
                         node->_parent->_right = 0;
                     break;
                 case 1:
-                    BSTreeNode<T>* child;
                     if(node->hasLeft())
                     {
-                        child = node->_left;
+                        replaceRelationWithParent(node,node->_left);
                     }
                     else
                     {
-                        child = node->_right;
+                        replaceRelationWithParent(node,node->_right);
                     }
-                    replaceRelationWithParent(node,child);
                     break; 
                 case 2:
                     if(node->_right->_data == node->_data and node->_right != _end)
@@ -403,7 +401,7 @@ class BSTree
 
             delete node;
             _size--;
-            #ifdef CHECK_NODE_HEALTH
+            #if CHECK_NODE_HEALTH
             checkHealth(_root);
             #endif
             return;
