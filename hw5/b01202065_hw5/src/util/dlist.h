@@ -10,7 +10,7 @@
 #define DLIST_H
 
 #include <cassert>
-
+#include <algorithm>
 template <class T> class DList;
 
 // DListNode is supposed to be a private class. User don't need to see it.
@@ -202,9 +202,56 @@ public:
 
    void sort() const 
    {
-
+        quicksort(_head->_next,_head->_prev);
+       
    }
+   void swapNode(DListNode<T>* &a, DListNode<T>* &b) const
+   {
+       std::swap(a->_data,b->_data);
+   }
+   void quicksort(DListNode<T>* left, DListNode<T>* right) const
+   {
+       if(left->_prev == right){return;}
+       if(left == right){return;}
+       
+       if(left->_next == right)
+       {
+           if(right->_data < left->_data)
+               swapNode(left,right);
+           return;
+       }
+       DListNode<T>* pivotNode = left ;
+       DListNode<T>* i = left->_next;
+       DListNode<T>* j = right;
+       
+       while(true)
+       {
+           while(i!=right or i!=j->_next)
+           {
+               if(pivotNode->_data < i->_data or pivotNode->_data == i->_data)
+               {
+                   break;
+               }
+               i = i->_next;
+           }
 
+           while(j!=i->_prev)
+           {
+               if(j->_data < pivotNode->_data)
+               {
+                   break;
+               }
+               j = j->_prev;
+           }
+           if(j==i->_prev){break;}
+           swapNode(i,j);
+        
+       }
+       swapNode(left,j);
+       quicksort(left,j->_prev);
+       if(j!=right)
+           quicksort(j->_next,right);
+   }
 private:
    DListNode<T>*  _head;  // = dummy node if list is empty
 
