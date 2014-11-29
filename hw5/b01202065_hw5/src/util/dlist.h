@@ -169,7 +169,6 @@ public:
        }
        else
        {
-           bool delx = false;
            iterator tmp = 0;
 
            for(iterator itr = begin();itr != end();)
@@ -179,14 +178,14 @@ public:
                    tmp = itr;
                    ++itr;
                    erase(tmp);
-                   delx = true;
+                   return true;
                }
                else
                {
                    ++itr;
                }
            }
-           return delx;
+           return false;
        }
    }
 

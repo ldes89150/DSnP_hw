@@ -152,16 +152,15 @@ public:
        }
        else
        {
-           bool delx = false;
            for(iterator itr = begin();itr != end();++itr)
            {
                if((*itr)==x)
                {
                    erase(itr);
-                   delx = true;
+                   return true;
                }
            }
-           return delx;
+           return false;
        }
    }
 
