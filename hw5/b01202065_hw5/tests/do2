@@ -13,7 +13,6 @@ usage
 adtr 3
 adta -r 50000
 usage
-q -f
 adtp
 usage
 adtd -r 10000

@@ -6,7 +6,7 @@
   Copyright    [ Copyleft(c) 2005-2014 LaDs(III), GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
-#define CHECK_NODE_HEALTH 1
+#define CHECK_NODE_HEALTH 0
 
 
 #ifndef BST_H
@@ -281,7 +281,9 @@ class BSTree
                     continue;
                 }
             }
+            #ifdef CHECK_NODE_HEALTH
             checkHealth(_root);
+            #endif
         }
         void sort(){}//dummy function
         void pop_back()
@@ -401,8 +403,9 @@ class BSTree
 
             delete node;
             _size--;
-
+            #ifdef CHECK_NODE_HEALTH
             checkHealth(_root);
+            #endif
             return;
         } 
         void replaceRelationWithParent(BSTreeNode<T>* &origin, BSTreeNode<T>* &nodeNew)
