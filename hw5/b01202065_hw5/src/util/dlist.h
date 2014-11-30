@@ -209,7 +209,7 @@ public:
    {
        std::swap(a->_data,b->_data);
    }
-   void quicksort(DListNode<T>* left, DListNode<T>* right) const
+   void quicksort(DListNode<T>* &left, DListNode<T>* &right) const
    {
        if(left->_prev == right){return;}
        if(left == right){return;}
