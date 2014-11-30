@@ -136,7 +136,7 @@ public:
        }
        else
        {
-           for(T* ptr = pos._node;ptr != end()._node-1;++ptr)
+           for(T* ptr = pos._node;ptr != _data+_size-1;++ptr)
            {
                *ptr = *(ptr+1);
            }
