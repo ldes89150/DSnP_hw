@@ -14,7 +14,7 @@
 #include <iostream>
 #include "cirDef.h"
 #include <utility>
-
+#include <set>
 
 using namespace std;
 
@@ -64,13 +64,33 @@ class CirGate
 
             fanIn.push_back(pin);
         }
-        void addFanOut(unsigned int pin)
+        */
+        void addFanOut(unsigned ID,bool inverse)
         {
-            fanOut.push_back(pin);
-        }*/
-
+            fanOut.push_back(net(ID,inverse));
+        }
+        static string gateTypeStr(enum GateType gt)
+        {
+        switch(gt)
+        {
+            case PI_GATE:
+                return "PI";
+            case PO_GATE:
+                return "PO";
+            case AIG_GATE:
+                return "AIG";
+            case CONST_GATE:
+                return "CONST";
+            case UNDEF_GATE:
+                return "UNDEF";
+            default:
+                return "";
+        }
+        }
     private:
-        void printFanIn(unsigned inden, int level, bool inverse) const;
+        void printUndef(unsigned inden, bool inverse, unsigned undefID) const;
+        void printFanIn(unsigned inden, int level, bool inverse, set<unsigned>* &reported) const;
+        void printFanOut(unsigned inden, int level, bool inverse, set<unsigned>* &reported) const;
 
 
     protected:
@@ -80,6 +100,15 @@ class CirGate
         unsigned int id;
         unsigned int lineNo;
 };
+
+class CirConstGate: public CirGate
+{
+    public:
+        CirConstGate():CirGate(CONST_GATE,0,0){}
+        ~CirConstGate(){}
+};
+
+
 
 class CirInputGate: public CirGate
 {
@@ -91,7 +120,7 @@ class CirInputGate: public CirGate
 class CirOutputGate: public CirGate
 {
     public:
-        CirOutputGate(enum GateType, unsigned id, unsigned lineNo,unsigned pin):CirGate(gateType,id,lineNo)
+        CirOutputGate(enum GateType gateType, unsigned id, unsigned lineNo,unsigned pin):CirGate(gateType,id,lineNo)
     {
         fanIn.push_back(make_net(pin));
     }

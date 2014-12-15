@@ -14,8 +14,8 @@
 #include <fstream>
 #include <iostream>
 #include <map>
-
-
+#include <set>
+#include <list>
 
 using namespace std;
 
@@ -32,8 +32,22 @@ public:
 
    // Access functions
    // return '0' if "gid" corresponds to an undefined gate.
-   CirGate* getGate(unsigned gid) const { return 0; }
-
+   CirGate* getGate(unsigned gid) const 
+   {
+       if(gid >= (M+O+1)) 
+       {
+           return 0;
+       }
+       return gates[gid]; 
+   }
+   string getGateName(unsigned gid) const
+   {
+       map<unsigned,string>::const_iterator itr = nameTable.find(gid);
+       if(itr == nameTable.end())
+           return "";
+       else
+           return (*itr).second;
+   }
    // Member functions about circuit construction
    bool readCircuit(const string&);
 
@@ -57,7 +71,15 @@ private:
    vector<unsigned> POs;
    vector<unsigned> Ls;
    vector<unsigned> As;
-   vector<unsigned> floatFanInID;
+   set<unsigned> floatFanInID;
+   set<unsigned> gatesWithFloatFanin;
+   list<unsigned> dfsList;
+   set<unsigned> reachableID;
+   map<unsigned,string> nameTable;
+   void buildfanout();
+   void buildDFSList();
+
+
 };
 
 #endif // CIR_MGR_H

@@ -16,6 +16,7 @@
 #include "cirGate.h"
 #include "util.h"
 #include <sstream>
+#include <stack>
 #define DEBUG_MODE 1
 
 using namespace std;
@@ -188,6 +189,7 @@ CirMgr::readCircuit(const string& fileName)
                     POs.reserve(O);
                     As.reserve(A);
                     Ls.reserve(L);
+                    gates[0] = new CirConstGate();
                 }
                 break;
             case input:
@@ -241,7 +243,29 @@ CirMgr::readCircuit(const string& fileName)
                     break;
                 }
             case symbol:
-                state = comment;
+                if(cirStr[0] != 'c')
+                {
+                    char io;
+                    unsigned position;
+                    string ioName;
+                    ss.get(io);
+                    ss>>position;
+                    ss>>ioName;
+                    if(io=='i')
+                    {
+                        ID = PIs[position]/2;    
+                    }
+                    else
+                    {
+                        ID = M+position+1;
+                    }
+                    nameTable[ID] = ioName;
+                    break;
+                }
+                else
+                {
+                    state = comment;
+                }
             case comment:
                 break;
         }
@@ -249,7 +273,7 @@ CirMgr::readCircuit(const string& fileName)
     }
     fin.close();
     //find floatgate section
-    for(unsigned i =0; i != M+1;++i )
+    for(unsigned i =0; i != M+O+1;++i )
     {
         if(gates[i]==0)
         {
@@ -261,21 +285,13 @@ CirMgr::readCircuit(const string& fileName)
             ID = (*itr).first; 
             if(gates[ID]==0)
             {
-                floatFanInID.push_back(ID);
-            }
-        }
-        for(unsigned i =0;i!= POs.size();i++)
-        {
-            ID = POs[i]/2;
-            if(gates[ID]==0)
-            {
-                floatFanInID.push_back(M+i+1);
+                gatesWithFloatFanin.insert(i);
+                floatFanInID.insert(ID);
             }
         }
     }
-    
-
-
+    buildfanout();
+    buildDFSList();
     return true;
 }
 
@@ -306,6 +322,13 @@ CirMgr::printSummary() const
 void
 CirMgr::printNetlist() const
 {
+    unsigned i =0;
+    for(list<unsigned>::const_iterator itr = dfsList.begin();
+        itr != dfsList.end();itr++)
+    {
+        cout<<'['<<i<<"] "<<( *itr)<<endl;
+        i++;
+    }
 }
 
 void
@@ -333,6 +356,13 @@ CirMgr::printPOs() const
 void
 CirMgr::printFloatGates() const
 {
+    cout<<"Gates with floating fanin(s):";
+    for(set<unsigned>::iterator itr = gatesWithFloatFanin.begin();
+        itr != gatesWithFloatFanin.end();itr++)
+    {
+        cout<<' '<<(*itr);
+    }
+    cout<<endl;
     
 }
 
@@ -340,4 +370,75 @@ void
 CirMgr::writeAag(ostream& outfile) const
 {
 
+}
+
+void CirMgr::buildfanout()
+{
+    for(unsigned i = 0; i != M+O+1; i++)
+    {
+        if(gates[i] != 0)
+        {
+            for(vector<CirGate::net>::const_iterator itr = gates[i]->fanIn.begin();
+                itr != gates[i]->fanIn.end();itr++)
+            {
+                CirGate* gate = getGate(itr->first);
+                if(gate != 0)
+                {
+                    gate->addFanOut(i,itr->second);
+                }
+            } 
+
+        }
+    }
+}
+
+
+void CirMgr::buildDFSList()
+{
+    stack<unsigned> trace;
+    unsigned gateID;
+    CirGate* gate;
+    bool store;
+    for(unsigned i = M+1;i < M+O+1;i++)
+    {
+        gateID = i;
+        while(true)
+        {
+            cout<<gateID<<endl;
+            store = true;
+            gate = getGate(gateID);
+            for(vector<CirGate::net>::const_iterator itr = gate->fanIn.begin();
+                itr != gate->fanIn.end();itr++)
+            {
+
+                if(getGate(itr->first) !=0)
+                {
+                    if(reachableID.count(itr->first)==0)
+                    {
+                        trace.push(gateID);
+                        gateID = itr->first;                        
+                        store = false;
+                        break;
+                    }
+                }
+            }
+            if(store)
+            {
+                reachableID.insert(gateID);
+                dfsList.push_back(gateID);
+                if(!trace.empty())
+                {
+                    gateID = trace.top();
+                    trace.pop();
+                    continue;
+
+                }
+                else
+                {
+                    break;
+                }
+            }
+        }
+
+    }
 }
