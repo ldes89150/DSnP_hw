@@ -255,10 +255,10 @@ CirMgr::readCircuit(const string& fileName)
         {
             continue;
         }
-        for(vector<unsigned>::const_iterator itr = gates[i]->fanIn.begin();
+        for(vector<CirGate::net>::const_iterator itr = gates[i]->fanIn.begin();
             itr != gates[i]->fanIn.end();itr++)
         {
-            ID = (*itr)/2; 
+            ID = (*itr).first; 
             if(gates[ID]==0)
             {
                 floatFanInID.push_back(ID);
