@@ -15,6 +15,8 @@
 #include "cirMgr.h"
 #include "cirGate.h"
 #include "util.h"
+#include <sstream>
+#define DEBUG_MODE 1
 
 using namespace std;
 
@@ -151,7 +153,128 @@ parseError(CirParseError err)
 bool
 CirMgr::readCircuit(const string& fileName)
 {
-   return true;
+    ifstream fin(fileName.c_str());
+    if(not fin.good())
+    {
+        cerr << "Cannot open design \"" << fileName << "\"!!" << endl;
+        return false;
+    }
+    stringstream ss;
+    unsigned lineNo = 1;
+    unsigned ID;
+    enum { header, input, latch, output, andGate, symbol, comment } state = header;
+    string cirStr;
+    while(true)
+    {
+        if(fin.eof())
+        {
+            break;
+        }
+        getline(fin,cirStr);
+        ss.clear();
+        ss.str(cirStr);
+        switch(state)
+        {
+            case header:
+                if(5 == sscanf(cirStr.c_str(), "aag %d %d %d %d %d", &M, &I, &L, &O, &A))
+                {
+                    gates = new CirGate*[M+1];
+                    for(unsigned i =0; i != M+1;i++)
+                    {
+                        gates[i] = 0;
+                    }
+                    state = input;
+                    PIs.reserve(I);
+                    POs.reserve(O);
+                    As.reserve(A);
+                    Ls.reserve(L);
+                }
+                break;
+            case input:
+                if(PIs.size()== I)
+                {
+                    state = latch;
+                }
+                else
+                {
+                    unsigned i;
+                    ss>>i;
+                    #if DEBUG_MODE
+                    assert(i%2 ==0);
+                    #endif  
+                    ID = i/2;        
+                    gates[ID] = new CirInputGate(PI_GATE,ID,lineNo);
+                    PIs.push_back(i);
+                    break;
+                }
+            case latch:
+                state = output;
+            case output:
+                if(POs.size() == O)
+                {
+                    state = andGate;
+                }
+                else
+                {
+                    unsigned o;
+                    ss>>o;
+                    POs.push_back(o);
+                    break;
+                }
+            case andGate:
+                if(As.size() == A)
+                {
+                    state = symbol;
+                }
+                else
+                {
+                    unsigned a, pin1, pin2;
+                    ss>>a>>pin1>>pin2;
+                    #if DEBUG_MODE
+                    assert(a%2 == 0);
+                    #endif
+                    ID = a/2;
+                    gates[ID] = new CirAndGate(AIG_GATE,ID,lineNo,pin1,pin2);
+                    As.push_back(a);
+                    break;
+                }
+            case symbol:
+                state = comment;
+            case comment:
+                break;
+        }
+        lineNo++;
+    }
+    fin.close();
+    //find floatgate section
+    for(unsigned i =0; i != M+1;++i )
+    {
+        if(gates[i]==0)
+        {
+            continue;
+        }
+        for(vector<unsigned>::const_iterator itr = gates[i]->fanIn.begin();
+            itr != gates[i]->fanIn.end();itr++)
+        {
+            ID = (*itr)/2; 
+            if(gates[ID]==0)
+            {
+                floatFanInID.push_back(ID);
+            }
+        }
+        for(unsigned i =0;i!= POs.size();i++)
+        {
+            ID = POs[i]/2;
+            if(gates[ID]==0)
+            {
+                floatFanInID.push_back(M+i+1);
+            }
+        }
+    }
+    
+
+
+    return true;
 }
 
 /**********************************************************/
@@ -169,6 +292,13 @@ Circuit Statistics
 void
 CirMgr::printSummary() const
 {
+    cout<<"Circuit Statistics"<<endl
+        <<"=================="<<endl
+        <<"  PI          "<<I<<endl
+        <<"  PO          "<<O<<endl
+        <<"  AIG         "<<A+L<<endl
+        <<"------------------"<<endl
+        <<"  Total       "<<PIs.size()+POs.size()+As.size()+Ls.size()<<endl;
 }
 
 void
@@ -180,6 +310,10 @@ void
 CirMgr::printPIs() const
 {
    cout << "PIs of the circuit:";
+   for(vector<unsigned>::const_iterator itr = PIs.begin();itr != PIs.end();itr++)
+   {
+       cout<<" "<<(*itr)/2;
+   }
    cout << endl;
 }
 
@@ -187,15 +321,21 @@ void
 CirMgr::printPOs() const
 {
    cout << "POs of the circuit:";
+   for(unsigned i = M+1; i != M+O+1;++i)
+   {
+       cout<<" "<<i;
+   }
    cout << endl;
 }
 
 void
 CirMgr::printFloatGates() const
 {
+    
 }
 
 void
 CirMgr::writeAag(ostream& outfile) const
 {
+
 }

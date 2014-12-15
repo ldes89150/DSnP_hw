@@ -13,6 +13,9 @@
 #include <string>
 #include <fstream>
 #include <iostream>
+#include <map>
+
+
 
 using namespace std;
 
@@ -43,6 +46,18 @@ public:
    void writeAag(ostream&) const;
 
 private:
+   typedef map<unsigned,CirGate*> cirDict;
+   unsigned int M;
+   unsigned int I;
+   unsigned int L;
+   unsigned int O;
+   unsigned int A;
+   CirGate** gates;
+   vector<unsigned> PIs;
+   vector<unsigned> POs;
+   vector<unsigned> Ls;
+   vector<unsigned> As;
+   vector<unsigned> floatFanInID;
 };
 
 #endif // CIR_MGR_H
