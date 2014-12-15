@@ -41,3 +41,14 @@ CirGate::reportFanout(int level) const
    assert (level >= 0);
 }
 
+void CirGate::printFanIn(unsigned inden, int level, bool inverse) const
+{
+    cout<<string(inden, ' ');
+    if(inverse)
+    {
+        cout<<'!';
+    }
+
+
+}
+

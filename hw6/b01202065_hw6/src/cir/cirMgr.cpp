@@ -178,8 +178,8 @@ CirMgr::readCircuit(const string& fileName)
             case header:
                 if(5 == sscanf(cirStr.c_str(), "aag %d %d %d %d %d", &M, &I, &L, &O, &A))
                 {
-                    gates = new CirGate*[M+1];
-                    for(unsigned i =0; i != M+1;i++)
+                    gates = new CirGate*[M+O+1];
+                    for(unsigned i =0; i != M+O+1;i++)
                     {
                         gates[i] = 0;
                     }
@@ -218,6 +218,8 @@ CirMgr::readCircuit(const string& fileName)
                 {
                     unsigned o;
                     ss>>o;
+                    ID = M+POs.size()+1;
+                    gates[ID] = new  CirOutputGate(PO_GATE,ID,lineNo,o);
                     POs.push_back(o);
                     break;
                 }

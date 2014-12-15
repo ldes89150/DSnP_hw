@@ -42,6 +42,7 @@ class CirGate
         void reportFanout(int level) const;
         void addFanIn(unsigned int pin)
         {
+
             fanIn.push_back(pin);
         }
         void addFanOut(unsigned int pin)
@@ -50,6 +51,8 @@ class CirGate
         }
 
     private:
+        void printFanIn(unsigned inden, int level, bool inverse) const;
+        
 
     protected:
         enum GateType gateType;
@@ -62,8 +65,18 @@ class CirGate
 class CirInputGate: public CirGate
 {
     public:
-        CirInputGate(enum GateType gateType,unsigned int id, unsigned lineNo):CirGate(gateType, id, lineNo){};
-        ~CirInputGate(){};
+        CirInputGate(enum GateType gateType,unsigned int id, unsigned lineNo):CirGate(gateType, id, lineNo){}
+        ~CirInputGate(){return;}
+};
+
+class CirOutputGate: public CirGate
+{
+    public:
+        CirOutputGate(enum GateType, unsigned id, unsigned lineNo,unsigned pin):CirGate(gateType,id,lineNo)
+    {
+        fanIn.push_back(pin);
+    }
+        ~CirOutputGate(){return;}
 };
 
 class CirAndGate: public CirGate
