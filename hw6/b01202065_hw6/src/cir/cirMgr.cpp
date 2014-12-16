@@ -312,6 +312,7 @@ Circuit Statistics
 void
 CirMgr::printSummary() const
 {
+    cout<<endl;
     cout<<"Circuit Statistics"<<endl
         <<"=================="<<endl
         <<"  PI          "<<I<<endl
