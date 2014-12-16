@@ -35,7 +35,7 @@ class CirGate
         {
             return net(pin/2,(pin%2) == 1);
         }
-        unsigned get_pin(net l)
+        static unsigned get_pin(net l)
         {
             if(l.second)
                 return l.first*2+1;
@@ -45,7 +45,7 @@ class CirGate
 
 
 
-        CirGate(enum GateType gateType,unsigned int id,unsigned lineNo):gateType(gateType),id(id), lineNo(lineNo) {}
+        CirGate(enum GateType gateType,unsigned int id,unsigned lineNo):gateType(gateType),id(id), lineNo(lineNo), reachability(false) {}
         virtual ~CirGate() {}
         
         // Basic access methods
@@ -99,6 +99,7 @@ class CirGate
         vector<net> fanOut;
         unsigned int id;
         unsigned int lineNo;
+        bool reachability;
 };
 
 class CirConstGate: public CirGate

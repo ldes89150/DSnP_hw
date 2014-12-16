@@ -259,6 +259,9 @@ CirMgr::readCircuit(const string& fileName)
                     {
                         ID = M+position+1;
                     }
+                    cout<<ID<<' '<<ioName<<endl;
+                    if(nameTable.find(ID)!=nameTable.end())
+                        break;
                     nameTable[ID] = ioName;
                     break;
                 }
@@ -322,6 +325,7 @@ CirMgr::printSummary() const
 void
 CirMgr::printNetlist() const
 {
+    cout<<endl;
     unsigned i =0;
     CirGate* gate;
     map<unsigned,string>::const_iterator d;
@@ -398,7 +402,83 @@ void
 CirMgr::writeAag(ostream& outfile) const
 {
     outfile<<"aag "<<M<<' '<<I<<' '<<L<<' '<<O<<' ';
+    unsigned count = 0;
+    for(unsigned i =0; i<M+O+1;i++)
+    {
+        if(gates[i] != 0)
+        {
+            if(gates[i]->reachability and gates[i]->gateType == AIG_GATE)
+                count++;
+        }
+    }
+    #if DEBUG_MODE
+    assert(count>=0);
+    #endif
+    outfile<<count;
+    for(vector<unsigned>::const_iterator itr = PIs.begin();
+        itr != PIs.end();itr++ )
+    {
+        outfile<<endl<<(*itr);
+    }
+    for(vector<unsigned>::const_iterator itr = POs.begin();
+        itr !=  POs.end(); itr++)
+    {
+        outfile<<endl<<(*itr);
+    }
+     for(list<unsigned>::const_iterator ite = dfsList.begin();
+        ite !=  dfsList.end(); ite++)
+     {
+         if(gates[*ite]->gateType==AIG_GATE)
+         {
+             outfile<<endl<<(gates[(*ite)]->id)*2;
+             for(vector<CirGate::net>::const_iterator itr = gates[(*ite)]->fanIn.begin();
+                 itr != gates[(*ite)]->fanIn.end();itr++)
+             {
+                    outfile<<' '<<CirGate::get_pin(*itr);
+             }
+         }
 
+     }
+/* 
+    for(unsigned i =0;i< M+O+1; i++)
+    {
+        if(gates[i] != 0)
+        {
+            if(gates[i]->reachability and
+               gates[i]->gateType == AIG_GATE)
+            {
+                outfile<<endl<<(gates[i]->id)*2;
+                for(vector<CirGate::net>::const_iterator itr = gates[i]->fanIn.begin();
+                    itr != gates[i]->fanIn.end();itr++)
+                {
+                    outfile<<' '<<CirGate::get_pin(*itr);
+                }
+            }
+        }
+    }*/
+    map<unsigned,string>::const_iterator mitr;
+    count =0;
+    for(vector<unsigned>::const_iterator itr = PIs.begin();
+        itr != PIs.end();itr++)
+    {
+        mitr = nameTable.find((*itr)/2);
+        if(mitr != nameTable.end())
+        {
+            outfile<<endl<<'i'<<count<<' '<<mitr->second;
+            count++;
+        }
+    }
+    count =0;
+    for(unsigned i = M+1;i<M+O+1;i++)
+    {
+        mitr = nameTable.find(i);
+        if(mitr != nameTable.end())
+        {
+            outfile<<endl<<'o'<<count<<' '<<mitr->second;
+            count++;
+        }
+    }
+    
 }
 
 void CirMgr::buildfanout()
@@ -427,6 +507,7 @@ void CirMgr::buildDFSList()
     stack<unsigned> trace;
     unsigned gateID;
     CirGate* gate;
+    CirGate* tmp;
     bool store;
     for(unsigned i = M+1;i < M+O+1;i++)
     {
@@ -438,10 +519,11 @@ void CirMgr::buildDFSList()
             for(vector<CirGate::net>::const_iterator itr = gate->fanIn.begin();
                 itr != gate->fanIn.end();itr++)
             {
+                tmp = getGate(itr->first);
 
-                if(getGate(itr->first) !=0)
+                if(tmp !=0)
                 {
-                    if(reachableID.count(itr->first)==0)
+                    if(not tmp->reachability )
                     {
                         trace.push(gateID);
                         gateID = itr->first;                        
@@ -452,6 +534,7 @@ void CirMgr::buildDFSList()
             }
             if(store)
             {
+                gate->reachability = true;
                 reachableID.insert(gateID);
                 dfsList.push_back(gateID);
                 if(!trace.empty())
