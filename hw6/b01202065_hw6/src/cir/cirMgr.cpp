@@ -208,6 +208,11 @@ CirMgr::readCircuit(const string& fileName)
                 {
                     unsigned i;
                     ss>>i;
+                    if(i%2 != 0)
+                    {
+                        parseError(ILLEGAL_IDENTIFIER);
+                        colNo++;
+                    }
                     #if DEBUG_MODE
                     assert(i%2 ==0);
                     #endif  
@@ -247,6 +252,11 @@ CirMgr::readCircuit(const string& fileName)
                 {
                     unsigned a, pin1, pin2;
                     ss>>a>>pin1>>pin2;
+                    if(a%2 != 0)
+                    {
+                        parseError(ILLEGAL_IDENTIFIER);
+                        colNo++;
+                    }
                     #if DEBUG_MODE
                     assert(a%2 == 0);
                     #endif
