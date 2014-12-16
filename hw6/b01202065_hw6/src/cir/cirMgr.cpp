@@ -259,7 +259,6 @@ CirMgr::readCircuit(const string& fileName)
                     {
                         ID = M+position+1;
                     }
-                    cout<<ID<<' '<<ioName<<endl;
                     if(nameTable.find(ID)!=nameTable.end())
                         break;
                     nameTable[ID] = ioName;
@@ -388,14 +387,31 @@ CirMgr::printPOs() const
 void
 CirMgr::printFloatGates() const
 {
-    cout<<"Gates with floating fanin(s):";
+    stringstream ssf;
     for(set<unsigned>::iterator itr = gatesWithFloatFanin.begin();
         itr != gatesWithFloatFanin.end();itr++)
     {
-        cout<<' '<<(*itr);
+        ssf<<' '<<(*itr);
     }
-    cout<<endl;
-    
+    if(ssf.tellp() != 0)
+    {
+        cout<<"Gates with floating fanin(s):";
+        cout<<ssf.str()<<endl;
+    }
+    stringstream ssu;
+    for(unsigned i =0 ; i< M+O+1;i++)
+    {
+        if(gates[i] != 0)
+        {
+            if(!gates[i]->reachability and gates[i]->gateType == AIG_GATE)
+                ssu<<' '<<gates[i]->id;
+        }
+    }
+    if(ssu.tellp() != 0)
+    {
+        cout<<"Gates defined but not used  :";
+        cout<<ssu.str()<<endl;
+    }
 }
 
 void
