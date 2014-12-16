@@ -31,6 +31,8 @@ public:
    ~CirMgr()
    {
        CirGate * gate;
+       if(gates==0)
+           return;
        for(unsigned i =0;i<M+O+1;i++)
        {
            gate = getGate(i);

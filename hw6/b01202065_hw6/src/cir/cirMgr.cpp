@@ -154,8 +154,9 @@ parseError(CirParseError err)
 bool
 CirMgr::readCircuit(const string& fileName)
 {
-    ifstream fin(fileName.c_str());
-    if(not fin.good())
+    fstream fin;
+    fin.open(fileName.c_str(),ios::in);
+    if(!fin)
     {
         cerr << "Cannot open design \"" << fileName << "\"!!" << endl;
         fin.close();
