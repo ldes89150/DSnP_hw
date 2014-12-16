@@ -266,6 +266,8 @@ CirMgr::readCircuit(const string& fileName)
                     ss>>ioName;
                     if(io=='i')
                     {
+                        if(position>I)
+                            break;
                         ID = PIs[position]/2;    
                     }
                     else
@@ -355,23 +357,29 @@ CirMgr::printNetlist() const
             continue; 
         }
         cout<<left<<setw(4)<<CirGate::gateTypeStr(gate->gateType)
-            <<( *itr)<<' ';
+            <<( *itr);
         for(vector<CirGate::net>::const_iterator ite =gate->fanIn.begin();
             ite != gate->fanIn.end();ite++)
         {
+            cout<<' ';
             if(getGate(ite->first)==0)
             {
                 cout<<'*';
+            }
+            else
+            {
+                if(getGate(ite->first)->gateType == UNDEF_GATE)
+                    cout<<'*';
             }
             if(ite->second)
             {
                 cout<<'!';
             }
-            cout<<ite->first<<' ';
+            cout<<ite->first;
         }
         d = nameTable.find(*itr);
         if(d != nameTable.end())
-            cout<<'('<<d->second<<')';
+            cout<<' '<<'('<<d->second<<')';
         cout<<endl;
         i++;
     }
@@ -418,7 +426,7 @@ CirMgr::printFloatGates() const
     {
         if(gates[i] != 0)
         {
-            if(!gates[i]->reachability and gates[i]->gateType == AIG_GATE)
+            if(gates[i]->fanOut.size()==0 and gates[i]->gateType == AIG_GATE)
                 ssu<<' '<<gates[i]->id;
         }
     }

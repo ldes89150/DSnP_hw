@@ -69,7 +69,7 @@ void CirGate::printFanIn(unsigned inden, int level, bool inverse, set<unsigned>*
     }
    
     cout<<gateTypeStr(gateType)<<' '<<id;
-    if(reported->count(id)==1 and !fanIn.empty())
+    if(reported->count(id)==1 and !fanIn.empty() and level >0)
     {
         cout<<" (*)"<<endl;
         return;
@@ -110,7 +110,7 @@ void CirGate::printFanOut(unsigned inden, int level, bool inverse, set<unsigned>
     }
    
     cout<<gateTypeStr(gateType)<<' '<<id;
-    if(reported->count(id)==1 and !fanOut.empty())
+    if(reported->count(id)==1 and !fanOut.empty() and level >0)
     {
         cout<<" (*)"<<endl;
         return;
