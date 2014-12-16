@@ -289,6 +289,7 @@ CirMgr::readCircuit(const string& fileName)
             {
                 gatesWithFloatFanin.insert(i);
                 floatFanInID.insert(ID);
+                gates[ID] = new CirUndefGate(ID);
             }
         }
     }
@@ -540,7 +541,7 @@ void CirMgr::buildDFSList()
 
                 if(tmp !=0)
                 {
-                    if(not tmp->reachability )
+                    if(!tmp->reachability and tmp->gateType!=UNDEF_GATE)
                     {
                         trace.push(gateID);
                         gateID = itr->first;                        

@@ -109,6 +109,13 @@ class CirConstGate: public CirGate
         ~CirConstGate(){}
 };
 
+class CirUndefGate: public CirGate
+{
+    public:
+        CirUndefGate(unsigned id):CirGate(UNDEF_GATE,id,0){}
+        ~CirUndefGate(){return;}
+};
+
 
 
 class CirInputGate: public CirGate
