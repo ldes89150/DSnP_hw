@@ -28,7 +28,17 @@ class CirMgr
 {
 public:
    CirMgr(){}
-   ~CirMgr() {}
+   ~CirMgr()
+   {
+       CirGate * gate;
+       for(unsigned i =0;i<M+O+1;i++)
+       {
+           gate = getGate(i);
+           if(gate !=0)
+               delete gate;
+       }
+       delete gates;
+   }
 
    // Access functions
    // return '0' if "gid" corresponds to an undefined gate.

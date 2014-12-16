@@ -158,6 +158,7 @@ CirMgr::readCircuit(const string& fileName)
     if(not fin.good())
     {
         cerr << "Cannot open design \"" << fileName << "\"!!" << endl;
+        fin.close();
         return false;
     }
     stringstream ss;
@@ -167,13 +168,18 @@ CirMgr::readCircuit(const string& fileName)
     string cirStr;
     while(true)
     {
-        if(fin.eof())
+        if(fin.eof() or state == comment)
         {
             break;
         }
         getline(fin,cirStr);
         ss.clear();
         ss.str(cirStr);
+        if(*(cirStr.rbegin())==' ' or *(cirStr.begin()) == ' ')
+        {
+            parseError(EXTRA_SPACE);
+            colNo++;
+        }
         switch(state)
         {
             case header:
@@ -204,7 +210,13 @@ CirMgr::readCircuit(const string& fileName)
                     #if DEBUG_MODE
                     assert(i%2 ==0);
                     #endif  
-                    ID = i/2;        
+                    ID = i/2;       
+                    if(ID>M)
+                    {
+                        errMsg = "PI index";
+                        parseError(NUM_TOO_BIG);        
+                        colNo++;
+                    } 
                     gates[ID] = new CirInputGate(PI_GATE,ID,lineNo);
                     PIs.push_back(i);
                     break;
