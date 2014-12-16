@@ -323,10 +323,38 @@ void
 CirMgr::printNetlist() const
 {
     unsigned i =0;
+    CirGate* gate;
+    map<unsigned,string>::const_iterator d;
     for(list<unsigned>::const_iterator itr = dfsList.begin();
         itr != dfsList.end();itr++)
     {
-        cout<<'['<<i<<"] "<<( *itr)<<endl;
+        gate = gates[*itr];
+        cout<<'['<<i<<"] ";
+        if(gate->gateType == CONST_GATE)
+        {
+            cout<<"CONST0"<<endl;
+            i++;
+            continue; 
+        }
+        cout<<left<<setw(4)<<CirGate::gateTypeStr(gate->gateType)
+            <<( *itr)<<' ';
+        for(vector<CirGate::net>::const_iterator ite =gate->fanIn.begin();
+            ite != gate->fanIn.end();ite++)
+        {
+            if(getGate(ite->first)==0)
+            {
+                cout<<'*';
+            }
+            if(ite->second)
+            {
+                cout<<'!';
+            }
+            cout<<ite->first<<' ';
+        }
+        d = nameTable.find(*itr);
+        if(d != nameTable.end())
+            cout<<'('<<d->second<<')';
+        cout<<endl;
         i++;
     }
 }
@@ -369,6 +397,7 @@ CirMgr::printFloatGates() const
 void
 CirMgr::writeAag(ostream& outfile) const
 {
+    outfile<<"aag "<<M<<' '<<I<<' '<<L<<' '<<O<<' ';
 
 }
 
@@ -404,7 +433,6 @@ void CirMgr::buildDFSList()
         gateID = i;
         while(true)
         {
-            cout<<gateID<<endl;
             store = true;
             gate = getGate(gateID);
             for(vector<CirGate::net>::const_iterator itr = gate->fanIn.begin();
