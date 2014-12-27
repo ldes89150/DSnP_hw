@@ -427,7 +427,7 @@ CirMgr::printFloatGates() const
     {
         if(gates[i] != 0)
         {
-            if(gates[i]->fanOut.size()==0 and gates[i]->gateType == AIG_GATE)
+            if(gates[i]->fanOut.size()!=2 and gates[i]->gateType == AIG_GATE)
                 ssu<<' '<<gates[i]->id;
         }
     }
