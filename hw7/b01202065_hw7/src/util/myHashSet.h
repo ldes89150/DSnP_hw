@@ -10,7 +10,7 @@
 #define MY_HASH_SET_H
 
 #include <vector>
-
+#include <algorithm>
 using namespace std;
 
 //---------------------
@@ -49,8 +49,93 @@ public:
       friend class HashSet<Data>;
 
    public:
+      const Data& operator * () const {return (*this);}
+      Data& operator * () {return (*subitr);}
+      iterator& operator ++ ()
+      {
+          if(subitr == bucketlist[nBucket-1].end())
+          {
+              return (*this);
+          }
+          if(subitr != bucketlist[n].end()-1)
+          {
+              subitr++;
+              return (*this);
+          } 
+          else
+          {
+              for(size_t i = n+1; i < nBucket; i++)
+              {
+                    if(bucketlist[i].size() != 0)
+                    {
+                        n = i; 
+                        subitr = bucketlist[n].begin();
+                        return (*this);
+                    }
+              }
+              n = nBucket -1;
+              subitr = bucketlist[n].end();
+              return (*this);
+          }  
+      }
+      iterator operator ++ (int)
+      {
+          iterator tmp = (*this);
+          this->operator++();
+          return tmp;
+      }
+
+      iterator & operator -- ()
+      {
+          if(subitr != bucketlist[n].begin())
+          {
+              subitr--;
+              return (*this);
+          }
+          else
+          {
+              for(size_t i = n-1;i >0; i--)
+              {
+                  if(bucketlist[i].size() != 0)
+                  {
+                      n=i;
+                      subitr = bucketlist[n].end();
+                      subitr--;
+                      return (*this);
+                  }
+              }
+
+          }
+          return (*this);
+      }
+      iterator operator -- (int)
+      {
+          iterator tmp = (*this);
+          this->operator--();
+          return tmp;
+      }
+
+      bool operator == (const iterator& i) const
+      {
+          return (bucketlist == i.bucketlist) and (subitr == i.subitr); 
+      }  
+      bool operator != (const iterator& i) const
+      {
+          return (bucketlist != i.bucketlist) or (subitr != i.subitr);
+      }
+      iterator& operator = (const iterator& i)
+      {
+          n = i.n;
+          bucketlist = i.bucketlist;
+          nBucket = i.nBucket;
+          subitr = i.subitr;
+      }
 
    private:
+      size_t n;
+      vector<Data>* bucketlist;
+      size_t nBucket;
+      typename vector<Data>::iterator subitr;
    };
 
    void init(size_t b) {
@@ -67,33 +152,120 @@ public:
    // TODO: implement these functions
    //
    // Point to the first valid data
-   iterator begin() const { iterator(); }
+   iterator begin() const 
+   { 
+       iterator itr;
+       itr.bucketlist = _buckets;
+       itr.nBucket = _numBuckets;
+       for(size_t i =0;i< _numBuckets; i++)
+       {
+           if(_buckets[i].size() != 0)
+           {
+               itr.n = i;
+               itr.subitr = _buckets[i].begin();
+               return itr;
+           }
+       }
+       itr.n = _numBuckets -1;
+       itr.subitr = _buckets[_numBuckets-1].end();
+       return itr;
+   }
    // Pass the end
-   iterator end() const { iterator(); }
+   iterator end() const 
+   {
+       iterator itr;
+       itr.bucketlist = _buckets;
+       itr.nBucket = _numBuckets;
+       itr.n = _numBuckets -1;
+       itr.subitr = _buckets[_numBuckets-1].end();
+       return itr;
+   }
    // return true if no valid data
-   bool empty() const { return true; }
+   bool empty() const 
+   {
+      return size() == 0; 
+   }
    // number of valid data
-   size_t size() const { size_t s = 0; return s; }
+   size_t size() const 
+   {
+       size_t count = 0;
+       for(size_t i = 0;i != _numBuckets;i++)
+       {
+           count += _buckets[i].size();
+       }
+       return count;
+   }
 
    // check if d is in the hash...
    // if yes, return true;
    // else return false;
-   bool check(const Data& d) const { return false; }
+   bool check(const Data& d) const 
+   { 
+       size_t n = bucketNum(d);
+       typename vector<Data>::const_iterator itr = find(_buckets[n].begin(),
+                                                        _buckets[n].end(),
+                                                        d);
+       return itr != _buckets[n].end(); 
+   }
 
    // query if d is in the hash...
    // if yes, replace d with the data in the hash and return true;
    // else return false;
-   bool query(Data& d) const { return false; }
-
+   bool query(Data& d) const 
+   { 
+       size_t n = bucketNum(d);
+       typename vector<Data>::const_iterator itr = find(_buckets[n].begin(),
+                                                        _buckets[n].end(),
+                                                        d);
+       if(itr == _buckets[n].end())
+       {
+           return false;
+       }
+       else
+       {
+           d = (*itr);
+           return true;
+       }
+   }
    // update the entry in hash that is equal to d
    // if found, update that entry with d and return true;
    // else insert d into hash as a new entry and return false;
-   bool update(const Data& d) { return false; }
+   bool update(const Data& d) 
+   { 
+       size_t n = bucketNum(d);
+       typename vector<Data>::iterator itr = find(_buckets[n].begin(),
+                                                  _buckets[n].end(),
+                                                  d);
+       if(itr == _buckets[n].end())
+       {
+           _buckets[n].push_back(d);
+           return false;
+       }
+       else
+       {
+           (*itr) = d;
+           return true;
+       }
+   }
 
    // return true if inserted successfully (i.e. d is not in the hash)
    // return false is d is already in the hash ==> will not insert
-   bool insert(const Data& d) { return true; }
-
+   bool insert(const Data& d) 
+   { 
+       size_t n = bucketNum(d);
+       typename vector<Data>::const_iterator itr = find(_buckets[n].begin(),
+                                                        _buckets[n].end(),
+                                                        d);
+       if(itr == _buckets[n].end())
+       {
+           _buckets[n].push_back(d);
+           return true;
+       }
+       else
+       {
+           return false;
+       }
+   }
 private:
    // Do not add any extra data member
    size_t            _numBuckets;
