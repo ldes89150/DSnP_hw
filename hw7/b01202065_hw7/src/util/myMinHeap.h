@@ -32,10 +32,55 @@ public:
    size_t size() const { return _data.size(); }
 
    // TODO
-   const Data& min() const { return Data(); }
-   void insert(const Data& d) { }
-   void delMin() { }
-   void delData(size_t i) { } // remove _data[i]
+   const Data& min() const 
+   { 
+       return _data[0];
+   }
+   void insert(const Data& d) 
+   {
+      if(_data.empty())
+      {
+          _data.push_back(d);
+          return;
+      }
+      else
+      {
+          if(_data[0]<d)
+          {
+              _data.push_back(d);
+          }
+          else
+          {
+              Data tmp = _data[0];
+              _data[0] = d;
+              _data.push_back(d);
+          }
+          return;
+      }      
+   }
+   void delMin() 
+   {
+       if(_data.empty())
+           return;
+       if(_data.size() == 1)
+       {
+           _data.pop_back();
+           return;
+       }
+       typename vector<Data>::iterator itr = std::min_element(_data.begin()+1,_data.end());
+       std::swap(_data[0],*itr);
+       std::swap(*(_data.end()-1),*itr);
+       _data.pop_back();
+       return; 
+   }
+   void delData(size_t i) 
+   {
+      if(i == 0)
+         delMin();
+     else
+        _data.erase(_data.begin()+i); 
+     return;
+   } // remove _data[i]
 
 private:
    // DO NOT add or change data members
