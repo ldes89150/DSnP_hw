@@ -123,6 +123,8 @@ TaskNewCmd::exec(const string& option)
       assert(doName); 
       if (!taskMgr->add(name, load))
          cerr << "Error: Task node (" << name << ") already exists.\n";
+      else
+        cout<<"New task node: ("<<name<<", "<<load<<")"<<endl;
    }
    return CMD_EXEC_DONE;
 }
