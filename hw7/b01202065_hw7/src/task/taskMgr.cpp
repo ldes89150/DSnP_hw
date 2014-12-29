@@ -97,7 +97,7 @@ TaskMgr::assign(size_t l)
    TaskNode node( _taskHeap.min().getName(),_taskHeap.min().getLoad()+l);
    _taskHeap.insert(node);
    _taskHeap.delMin();
-   _taskHash.insert(node);
+   _taskHash.update(node);
    return true;
 }
 

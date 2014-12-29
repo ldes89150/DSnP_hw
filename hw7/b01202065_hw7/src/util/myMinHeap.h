@@ -45,17 +45,15 @@ public:
       }
       else
       {
-          if(_data[0]<d)
+          _data.push_back(d);
+          position v = last();
+          while(!isRoot(v))
           {
-              _data.push_back(d);
+              position u = parent(v);
+              if((*u) < (*v)) break;
+              std::swap(*u,*v);
+              v=u;
           }
-          else
-          {
-              Data tmp = _data[0];
-              _data[0] = d;
-              _data.push_back(d);
-          }
-          return;
       }      
    }
    void delMin() 
@@ -67,22 +65,98 @@ public:
            _data.pop_back();
            return;
        }
-       typename vector<Data>::iterator itr = std::min_element(_data.begin()+1,_data.end());
-       std::swap(_data[0],*itr);
-       std::swap(*(_data.end()-1),*itr);
+       position u = root();
+       *u = *(last());
        _data.pop_back();
+       while(hasLeft(u))
+       {
+           position v = left(u);
+           if(hasRight(u))
+               if(*right(u)< *v)
+                   v = right(u);
+           if(*v <*u)
+           {
+               std::swap(*u,*v);
+               u = v;
+           }
+           else break;
+       }
        return; 
    }
    void delData(size_t i) 
    {
-      if(i == 0)
+     if(i == 0)
          delMin();
      else
-        _data.erase(_data.begin()+i); 
+     {
+         position u = _data.begin() +i;
+         *u = *(last());
+         _data.pop_back();
+         while(hasLeft(u))
+         {
+             position v = left(u);
+             if(hasRight(u))
+                 if(*right(u) < *v)
+                     v = right(u);
+             if(*v < *u)
+             {
+                 std::swap(*u,*v);
+                 u =v;
+             }
+             else break;
+         }
+     }   
      return;
    } // remove _data[i]
 
 private:
+    typedef typename vector<Data>::iterator position;
+    position root()
+    {
+        return (position) _data.begin();
+    }
+    position last()
+    {
+        return (position) _data.end()-1;
+    }
+    bool hasLeft(const position& p)
+    {
+        size_t parentIndex = (size_t)(p-_data.begin());
+        return (parentIndex*2+1) < _data.size();
+    }
+    bool hasRight(const position& p)
+    {
+        size_t parentIndex = (size_t)(p-_data.begin());
+        return (parentIndex*2+2) < _data.size();
+    }
+    bool isRoot(const position& p)
+    {
+        return (p-_data.begin())==0;
+    }
+    
+    position parent(const position& p)
+    {
+        size_t index = (size_t)(p-_data.begin()-1)/2;
+        return (position) (_data.begin()+index);
+    }
+
+    position left(const position& p)
+    {
+        size_t index = (size_t)(p-_data.begin())*2+1;
+        return (position) (_data.begin()+index);
+    }
+    position right(const position& p)
+    {
+        size_t index = (size_t)(p-_data.begin())*2+2;
+        return (position) (_data.begin()+index);
+    }
+    void swap_position(position&a ,position& b)
+    {
+        std::swap(*a,*b);
+    }
+
+
+
    // DO NOT add or change data members
    vector<Data>   _data;
 };
