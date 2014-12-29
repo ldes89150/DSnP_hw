@@ -85,28 +85,28 @@ public:
    }
    void delData(size_t i) 
    {
-     if(i == 0)
-         delMin();
-     else
-     {
-         position u = _data.begin() +i;
-         *u = *(last());
-         _data.pop_back();
-         while(hasLeft(u))
-         {
-             position v = left(u);
-             if(hasRight(u))
-                 if(*right(u) < *v)
-                     v = right(u);
-             if(*v < *u)
-             {
-                 std::swap(*u,*v);
-                 u =v;
-             }
-             else break;
-         }
-     }   
-     return;
+        if(i == 0)
+            delMin();
+        else
+        {
+            position u = _data.begin() +i;
+            *u = *(last());
+            _data.pop_back();
+            while(hasLeft(u))
+            {
+                position v = left(u);
+                if(hasRight(u))
+                    if(*right(u) < *v)
+                        v = right(u);
+                if(*v < *u)
+                {
+                    std::swap(*u,*v);
+                    u =v;
+                }
+                else break;
+            }
+        }   
+        return;
    } // remove _data[i]
 
 private:
@@ -154,8 +154,6 @@ private:
     {
         std::swap(*a,*b);
     }
-
-
 
    // DO NOT add or change data members
    vector<Data>   _data;
